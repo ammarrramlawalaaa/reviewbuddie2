@@ -1,0 +1,558 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0;padding:16px;font-family:system-ui,sans-serif;background:#fff}.w{max-width:760px;margin:auto}</style></head><body><div class="w">
+<!--
+  Amazon review policy for sellers in India — blog body
+  Paste everything below (the <style> block + the .rb-body div) into the CMS HTML field.
+  Mobile-first: base styles are for phones; @media (min-width: …) blocks scale up for tablet/desktop.
+  No JavaScript, no external images or fonts. All styles are scoped under .rb-body.
+-->
+<style>
+.rb-body{
+  --rb-blue:#2F80ED;--rb-blue-d:#1F5FB8;--rb-blue-l:#EEF5FD;--rb-blue-b:#CFE0F5;
+  --rb-ink:#1A2233;--rb-mute:#5B6475;--rb-navy:#0B1020;--rb-navy-2:#18263F;
+  --rb-ok:#16A34A;--rb-ok-l:#ECFAF1;--rb-ok-b:#BFE8CF;
+  --rb-no:#DC2626;--rb-no-l:#FEF1F1;--rb-no-b:#F6CACA;
+  --rb-warn:#B45309;--rb-warn-l:#FFF7E8;--rb-warn-b:#F5D9A8;
+  --rb-line:#DCE6F2;--rb-r:16px;
+  font-size:16px;line-height:1.7;color:var(--rb-ink);overflow-wrap:break-word;
+}
+.rb-body *{box-sizing:border-box}
+.rb-body h2{font-size:22px;line-height:1.3;margin:40px 0 12px;letter-spacing:-.2px;scroll-margin-top:90px}
+.rb-body h2 .rb-h-num{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:9px;background:var(--rb-blue);color:#fff;font-size:15px;font-weight:800;margin-right:10px;vertical-align:3px}
+.rb-body p{margin:0 0 14px}
+.rb-body a{color:var(--rb-blue);text-decoration:none;font-weight:600}
+.rb-body a:hover{text-decoration:underline}
+.rb-body :where(ul,ol){margin:0;padding:0;list-style:none}
+.rb-body :where(li){margin:0}
+
+/* Answer box: the one-line answer under each heading */
+.rb-answer{background:var(--rb-blue-l);border-left:4px solid var(--rb-blue);border-radius:0 14px 14px 0;padding:14px 16px;margin:0 0 18px}
+.rb-answer p{margin:0}
+
+.rb-label{display:block;font-weight:800;font-size:12px;letter-spacing:.7px;text-transform:uppercase;color:var(--rb-blue-d);margin:0 0 10px}
+.rb-note{font-size:13.5px;color:var(--rb-mute);margin:-6px 0 16px;line-height:1.55}
+
+/* TOC: tappable list */
+.rb-toc{background:var(--rb-navy);color:#fff;border-radius:20px;padding:18px 16px;margin:0 0 28px}
+.rb-toc__title{font-weight:800;font-size:13px;letter-spacing:.7px;text-transform:uppercase;color:#9CC3F5;margin:0 0 8px}
+.rb-toc ol{counter-reset:toc}
+.rb-toc li{counter-increment:toc;border-top:1px solid rgba(255,255,255,.1)}
+.rb-toc li:first-child{border-top:0}
+.rb-body .rb-toc a{display:flex;align-items:center;gap:12px;min-height:48px;padding:8px 0;color:#fff;font-weight:600;font-size:15px;line-height:1.35;text-decoration:none}
+.rb-toc a::before{content:counter(toc);flex:0 0 26px;height:26px;border-radius:8px;background:var(--rb-navy-2);color:#9CC3F5;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.rb-toc a::after{content:"↓";margin-left:auto;color:#5E7CA6;font-size:14px}
+
+/* Stat: 84 orders → 3 reviews */
+.rb-stat{background:var(--rb-navy);color:#fff;border-radius:20px;padding:20px 18px;margin:18px 0;position:relative;overflow:hidden}
+.rb-stat__row{display:flex;align-items:flex-end;gap:14px;margin-bottom:14px}
+.rb-stat__num{font-size:44px;font-weight:800;line-height:1;letter-spacing:-1px}
+.rb-stat__num small{display:block;font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#9CC3F5;margin-top:6px}
+.rb-stat__num--hl{color:#6FB0FF}
+.rb-stat__arrow{font-size:26px;color:#5E7CA6;padding-bottom:18px}
+.rb-stat__bar{height:12px;border-radius:99px;background:var(--rb-navy-2);overflow:hidden;margin-bottom:12px}
+.rb-stat__bar span{display:block;height:100%;width:3.6%;min-width:8px;border-radius:99px;background:#6FB0FF}
+.rb-stat__txt{font-size:15px;line-height:1.5;color:#D6E2F2;margin:0}
+
+/* Allowed vs not allowed / Do vs Don't panels */
+.rb-split{display:grid;gap:12px;margin:16px 0 20px}
+.rb-panel{border-radius:var(--rb-r);padding:16px;border:1px solid}
+.rb-panel--ok{background:var(--rb-ok-l);border-color:var(--rb-ok-b)}
+.rb-panel--no{background:var(--rb-no-l);border-color:var(--rb-no-b)}
+.rb-panel__head{display:flex;align-items:center;gap:10px;font-weight:800;font-size:16px;margin:0 0 10px}
+.rb-ico{flex:0 0 28px;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:15px;line-height:1}
+.rb-ico--ok{background:var(--rb-ok)}
+.rb-ico--no{background:var(--rb-no)}
+.rb-panel li{position:relative;padding:10px 0 10px 26px;border-top:1px solid rgba(0,0,0,.07);font-size:15px;line-height:1.5}
+.rb-panel li:first-child{border-top:0;padding-top:4px}
+.rb-panel li::before{position:absolute;left:2px;top:10px;font-weight:800}
+.rb-panel li:first-child::before{top:4px}
+.rb-panel--ok li::before{content:"✓";color:var(--rb-ok)}
+.rb-panel--no li::before{content:"✕";color:var(--rb-no)}
+
+/* Penalty ladder: severity rises step by step */
+.rb-ladder{background:var(--rb-blue-l);border-radius:20px;padding:18px 16px;margin:18px 0}
+.rb-ladder ol{counter-reset:lad;display:grid;gap:8px}
+.rb-ladder li{counter-increment:lad;display:flex;align-items:center;gap:12px;background:#fff;border-radius:12px;padding:12px;font-size:15px;font-weight:600;line-height:1.4;border-left:5px solid}
+.rb-ladder li::before{content:counter(lad);flex:0 0 28px;height:28px;border-radius:50%;color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.rb-ladder li:nth-child(1){border-color:#F5B7B7}.rb-ladder li:nth-child(1)::before{background:#F08A8A}
+.rb-ladder li:nth-child(2){border-color:#EE8E8E}.rb-ladder li:nth-child(2)::before{background:#E35D5D}
+.rb-ladder li:nth-child(3){border-color:#E25555}.rb-ladder li:nth-child(3)::before{background:#D23434}
+.rb-ladder li:nth-child(4){border-color:#B91C1C;background:#FEF1F1}.rb-ladder li:nth-child(4)::before{background:#991B1B}
+.rb-ladder__scale{display:flex;justify-content:space-between;font-size:12px;font-weight:700;color:var(--rb-mute);margin-top:10px;text-transform:uppercase;letter-spacing:.5px}
+
+/* Mistake cards */
+.rb-mistakes{display:grid;gap:12px;margin:16px 0;counter-reset:mis}
+.rb-mistake{counter-increment:mis;background:#fff;border:1px solid var(--rb-line);border-radius:var(--rb-r);padding:16px;box-shadow:0 2px 10px rgba(11,16,32,.04)}
+.rb-mistake__top{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.rb-mistake__emoji{flex:0 0 44px;height:44px;border-radius:12px;background:var(--rb-no-l);display:flex;align-items:center;justify-content:center;font-size:22px}
+.rb-mistake__title{font-weight:800;font-size:16px;line-height:1.3;margin:0}
+.rb-mistake__title::before{content:"Mistake " counter(mis);display:block;font-size:11px;letter-spacing:.7px;text-transform:uppercase;color:var(--rb-no);margin-bottom:2px}
+.rb-mistake p{margin:0;font-size:15px;line-height:1.55;color:#36405A}
+.rb-quote{display:inline;background:var(--rb-warn-l);border-radius:4px;padding:0 4px;font-style:italic}
+
+/* Wording swaps: ✕ line → ✓ line */
+.rb-swaps{display:grid;gap:12px;margin:16px 0 20px}
+.rb-swap{border:1px solid var(--rb-line);border-radius:var(--rb-r);overflow:hidden;background:#fff}
+.rb-swap__line{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;font-size:15px;line-height:1.5}
+.rb-swap__line .rb-ico{flex-basis:24px;width:24px;height:24px;font-size:13px;margin-top:1px}
+.rb-swap__line--no{background:var(--rb-no-l);color:#6B2B2B}
+.rb-swap__line--no span:last-child{text-decoration:line-through;text-decoration-color:rgba(220,38,38,.45)}
+.rb-swap__line--ok{background:var(--rb-ok-l);color:#14532D;font-weight:600}
+.rb-swap__tag{display:block;font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--rb-mute);padding:8px 14px 0;background:#fff}
+
+/* Printable insert card mock */
+.rb-insert{margin:20px 0}
+.rb-insert__card{position:relative;background:#FFFDF8;border:1px solid #E9E1D2;border-radius:6px;padding:22px 18px 18px;box-shadow:0 1px 0 #E9E1D2,0 12px 28px rgba(11,16,32,.10);transform:rotate(-.6deg)}
+.rb-insert__brand{font-family:Georgia,"Times New Roman",serif;font-size:20px;font-weight:700;margin:0 0 10px;color:var(--rb-ink)}
+.rb-insert__brand mark{background:#FFF1B8;color:inherit;padding:0 4px;border-radius:3px}
+.rb-insert__body{display:flex;gap:14px;align-items:flex-start}
+.rb-insert__text{font-size:15px;line-height:1.6;margin:0;color:#36405A}
+.rb-insert__qr{flex:0 0 64px;width:64px;height:64px;border-radius:6px;background:#fff;border:1px solid #E9E1D2;padding:5px}
+.rb-insert__qr svg{display:block;width:100%;height:100%}
+.rb-insert__cap{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--rb-mute);margin:14px 0 0;line-height:1.45}
+.rb-insert__cap::before{content:"✂";color:var(--rb-blue);font-size:16px}
+
+/* Callouts */
+.rb-callout{display:flex;gap:12px;border-radius:var(--rb-r);padding:16px;margin:18px 0;border:1px solid}
+.rb-callout__ico{flex:0 0 36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff}
+.rb-callout p{margin:0;font-size:15px;line-height:1.55}
+.rb-callout .rb-label{margin-bottom:4px}
+.rb-callout--warn{background:var(--rb-warn-l);border-color:var(--rb-warn-b)}
+.rb-callout--warn .rb-callout__ico{background:#F59E0B}
+.rb-callout--warn .rb-label{color:var(--rb-warn)}
+.rb-callout--tip{background:var(--rb-blue-l);border-color:var(--rb-blue-b)}
+.rb-callout--tip .rb-callout__ico{background:var(--rb-blue)}
+
+/* Method cards */
+.rb-methods{display:grid;gap:12px;margin:16px 0 20px}
+.rb-method{background:#fff;border:1px solid var(--rb-line);border-radius:var(--rb-r);padding:16px}
+.rb-method__top{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.rb-method__ico{flex:0 0 42px;height:42px;border-radius:12px;background:var(--rb-blue-l);display:flex;align-items:center;justify-content:center;font-size:20px}
+.rb-method__name{font-weight:800;font-size:16px;margin:0;line-height:1.3}
+.rb-method__how{font-size:15px;margin:0 0 10px;color:#36405A;line-height:1.5}
+.rb-method__know{display:flex;gap:8px;font-size:14px;line-height:1.45;background:#F6F9FD;border-radius:10px;padding:10px 12px;margin:0;color:var(--rb-ink)}
+.rb-method__know::before{content:"ℹ";flex:0 0 18px;height:18px;border-radius:50%;background:var(--rb-blue);color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:2px}
+.rb-method--star{border:2px solid var(--rb-blue)}
+.rb-pill{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;background:var(--rb-blue);color:#fff;border-radius:99px;padding:2px 8px;margin-left:6px;vertical-align:2px}
+
+/* Steps: phone-style vertical stepper */
+.rb-steps{background:var(--rb-blue-l);border-radius:20px;padding:18px 16px;margin:18px 0}
+.rb-steps ol{counter-reset:st;position:relative}
+.rb-steps li{counter-increment:st;position:relative;padding:0 0 18px 44px;font-size:15px;line-height:1.5;min-height:30px}
+.rb-steps li:last-child{padding-bottom:0}
+.rb-steps li::before{content:counter(st);position:absolute;left:0;top:-2px;width:30px;height:30px;border-radius:50%;background:var(--rb-blue);color:#fff;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;z-index:1}
+.rb-steps li:not(:last-child)::after{content:"";position:absolute;left:14px;top:28px;bottom:0;width:2px;background:var(--rb-blue-b)}
+.rb-steps li strong{display:block}
+.rb-kbd{display:inline-block;background:#fff;border:1px solid var(--rb-blue-b);border-bottom-width:2px;border-radius:6px;padding:0 6px;font-size:13.5px;font-weight:700;color:var(--rb-blue-d)}
+
+/* Day 0–30 timing bar */
+.rb-timing{background:#fff;border:1px solid var(--rb-line);border-radius:var(--rb-r);padding:16px;margin:18px 0}
+.rb-timing__bar{position:relative;height:40px;border-radius:10px;background:#EDF1F6;margin:30px 0 8px}
+.rb-timing__win{position:absolute;top:0;bottom:0;left:13.33%;right:0;background:#CFE0F5;border-radius:0 10px 10px 0}
+.rb-timing__sweet{position:absolute;top:0;bottom:0;left:23.33%;width:10%;background:var(--rb-blue);border-radius:6px}
+.rb-timing__flag{position:absolute;bottom:100%;left:28.33%;transform:translateX(-50%);margin-bottom:6px;white-space:nowrap;font-size:12px;font-weight:800;color:#fff;background:var(--rb-navy);border-radius:6px;padding:2px 8px}
+.rb-timing__flag::after{content:"";position:absolute;left:50%;top:100%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--rb-navy)}
+.rb-timing__ticks{position:relative;height:18px;font-size:12px;font-weight:700;color:var(--rb-mute)}
+.rb-timing__ticks span{position:absolute;transform:translateX(-50%)}
+.rb-timing__ticks span:first-child{transform:none}
+.rb-timing__ticks span:last-child{transform:translateX(-100%)}
+.rb-timing__legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:var(--rb-mute);margin-top:10px}
+.rb-timing__legend span::before{content:"";display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.rb-timing__legend .l1::before{background:#EDF1F6;border:1px solid #D3DAE4}
+.rb-timing__legend .l2::before{background:#CFE0F5}
+.rb-timing__legend .l3::before{background:var(--rb-blue)}
+
+/* Flow */
+.rb-flow{display:grid;gap:22px;margin:18px 0 12px}
+.rb-flow li{position:relative;display:flex;align-items:center;gap:12px;background:var(--rb-blue-l);border:1px solid var(--rb-blue-b);border-radius:14px;padding:12px 14px;font-size:14px;line-height:1.4}
+.rb-flow__n{flex:0 0 34px;height:34px;border-radius:10px;background:#fff;color:var(--rb-blue);font-weight:800;display:flex;align-items:center;justify-content:center;font-size:16px}
+.rb-flow li strong{display:block;font-size:15px}
+.rb-flow li:not(:last-child)::after{content:"↓";position:absolute;left:50%;bottom:-21px;transform:translateX(-50%);color:var(--rb-blue);font-weight:800;font-size:16px}
+.rb-flow li.rb-flow__hl{background:var(--rb-blue);border-color:var(--rb-blue);color:#fff;box-shadow:0 8px 20px rgba(47,128,237,.3)}
+.rb-flow li.rb-flow__hl .rb-flow__n{color:var(--rb-blue)}
+.rb-flow__same{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;background:rgba(255,255,255,.2);border-radius:99px;padding:1px 7px;margin-top:4px}
+.rb-flow li:not(.rb-flow__hl) .rb-flow__same{background:var(--rb-blue);color:#fff}
+
+/* 2026 timeline */
+.rb-timeline{position:relative;margin:18px 0;padding-left:22px}
+.rb-timeline::before{content:"";position:absolute;left:6px;top:8px;bottom:8px;width:2px;background:var(--rb-blue-b)}
+.rb-timeline li{position:relative;background:#fff;border:1px solid var(--rb-line);border-radius:var(--rb-r);padding:14px 16px;margin-bottom:12px}
+.rb-timeline li:last-child{margin-bottom:0}
+.rb-timeline li::before{content:"";position:absolute;left:-22px;top:18px;width:14px;height:14px;border-radius:50%;background:#fff;border:3px solid var(--rb-blue)}
+.rb-timeline li.is-base::before{border-color:var(--rb-mute)}
+.rb-date{display:inline-block;font-size:11.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--rb-blue-d);background:var(--rb-blue-l);border-radius:6px;padding:2px 8px;margin-bottom:6px}
+.rb-timeline li.is-base .rb-date{color:var(--rb-mute);background:#F1F3F6}
+.rb-timeline h3{font-size:16px;line-height:1.35;margin:0 0 4px}
+.rb-timeline p{font-size:14.5px;line-height:1.5;margin:0;color:#36405A}
+
+/* Big number aside */
+.rb-fact{display:flex;align-items:center;gap:14px;background:var(--rb-navy);color:#fff;border-radius:var(--rb-r);padding:16px;margin:18px 0}
+.rb-fact__num{font-size:30px;font-weight:800;line-height:1;color:#6FB0FF;white-space:nowrap}
+.rb-fact p{margin:0;font-size:14.5px;line-height:1.45;color:#D6E2F2}
+
+/* CTA */
+.rb-cta{position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:flex-start;gap:18px;background:var(--rb-navy);border-radius:24px;padding:24px 20px;margin:32px 0;color:#fff}
+.rb-cta::after{content:"";position:absolute;right:-140px;top:-80px;width:360px;height:360px;border-radius:50%;background:var(--rb-navy-2);z-index:0}
+.rb-cta__text,.rb-cta__btn{position:relative;z-index:1}
+.rb-cta__brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;margin-bottom:10px}
+.rb-cta__logo{width:26px;height:27px;flex-shrink:0;display:block}
+.rb-cta__headline{font-size:21px;font-weight:800;line-height:1.25;margin:0;letter-spacing:-.4px;color:#fff}
+.rb-body .rb-cta__btn{width:100%;text-align:center;background:linear-gradient(180deg,#4A97E4,#3683D3);color:#fff;font-weight:700;font-size:17px;padding:15px 20px;border-radius:999px;text-decoration:none;box-shadow:0 8px 24px rgba(59,141,224,.35)}
+.rb-body .rb-cta__btn:hover{text-decoration:none}
+
+/* Takeaways */
+.rb-takeaways{background:var(--rb-navy);color:#fff;border-radius:20px;padding:20px 18px;margin:16px 0}
+.rb-takeaways li{position:relative;padding:10px 0 10px 36px;border-top:1px solid rgba(255,255,255,.1);font-size:15.5px;line-height:1.5}
+.rb-takeaways li:first-child{border-top:0;padding-top:0}
+.rb-takeaways li::before{content:"✓";position:absolute;left:0;top:10px;width:24px;height:24px;border-radius:7px;background:var(--rb-blue);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.rb-takeaways li:first-child::before{top:0}
+
+/* ---------- Tablet and up ---------- */
+@media (min-width:640px){
+  .rb-body{font-size:17px}
+  .rb-body h2{font-size:26px;margin-top:48px}
+  .rb-toc{padding:22px 24px}
+  .rb-toc ol{display:grid;grid-template-columns:1fr 1fr;column-gap:24px}
+  .rb-toc li:nth-child(2){border-top:0}
+  .rb-stat{padding:26px 28px}
+  .rb-stat__num{font-size:56px}
+  .rb-split{grid-template-columns:1fr 1fr}
+  .rb-ladder ol{grid-template-columns:repeat(4,1fr)}
+  .rb-ladder li{flex-direction:column;align-items:flex-start;border-left:0;border-top:5px solid}
+  .rb-mistakes{grid-template-columns:1fr 1fr}
+  .rb-mistake:last-child{grid-column:1/-1}
+  .rb-swap{display:grid;grid-template-columns:1fr 1fr}
+  .rb-swap__tag{grid-column:1/-1}
+  .rb-swap__line{padding:14px 16px}
+  .rb-insert__card{padding:28px 30px 24px;max-width:560px}
+  .rb-insert__qr{flex-basis:84px;width:84px;height:84px}
+  .rb-methods{grid-template-columns:1fr 1fr}
+  .rb-steps ol{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .rb-steps li{padding:42px 0 0;font-size:14.5px}
+  .rb-steps li:not(:last-child)::after{left:34px;right:-12px;top:14px;bottom:auto;width:auto;height:2px}
+  .rb-cta{flex-direction:row;align-items:center;justify-content:space-between;gap:24px;padding:28px 36px}
+  .rb-cta__headline{font-size:26px}
+  .rb-body .rb-cta__btn{width:auto;flex-shrink:0;padding:16px 32px}
+  .rb-takeaways{padding:26px 28px}
+}
+
+/* ---------- Desktop ---------- */
+@media (min-width:900px){
+  .rb-flow{grid-template-columns:repeat(5,1fr);gap:22px}
+  .rb-flow li{flex-direction:column;align-items:flex-start;text-align:left;padding:14px 12px}
+  .rb-flow li:not(:last-child)::after{content:"→";left:auto;right:-18px;bottom:auto;top:50%;transform:translateY(-50%)}
+}
+</style>
+
+<div class="rb-body">
+
+<nav class="rb-toc" aria-label="Jump to a question">
+  <p class="rb-toc__title">In this guide</p>
+  <ol>
+    <li><a href="#what-is-amazon-review-policy">What is the Amazon review policy for sellers in India?</a></li>
+    <li><a href="#common-mistakes">What do Indian sellers think is allowed but actually breaks the policy?</a></li>
+    <li><a href="#package-inserts">What can you write on a package insert or thank-you card?</a></li>
+    <li><a href="#safe-ways-to-get-reviews">What are the safe ways to get reviews on Amazon India?</a></li>
+    <li><a href="#unfair-1-star-review">What should you do about an unfair 1-star review?</a></li>
+    <li><a href="#what-changed-2026">What changed in Amazon's review rules in 2026?</a></li>
+  </ol>
+</nav>
+
+<!-- ============ 1 ============ -->
+<h2 id="what-is-amazon-review-policy"><span class="rb-h-num" aria-hidden="true">1</span>What is the Amazon review policy for sellers in India?</h2>
+<div class="rb-answer">
+  <p>The Amazon review policy for sellers comes down to one line: <strong>you can ask for a review, but you can never influence what the customer writes.</strong> No rewards, no asking only happy buyers, and no reviews from anyone connected to you.</p>
+</div>
+
+<!-- VISUAL 1 · Stat card (navy). 84 delivered → 3 reviews, with a progress bar showing 3/84 (≈3.6%). Alt: "Amazon review policy for sellers: 84 orders delivered, only 3 reviews" -->
+<div class="rb-stat" role="img" aria-label="Amazon review policy for sellers: 84 orders delivered, only 3 reviews">
+  <div class="rb-stat__row">
+    <div class="rb-stat__num">84<small>Orders delivered</small></div>
+    <div class="rb-stat__arrow" aria-hidden="true">→</div>
+    <div class="rb-stat__num rb-stat__num--hl">3<small>Reviews received</small></div>
+  </div>
+  <div class="rb-stat__bar" aria-hidden="true"><span></span></div>
+  <p class="rb-stat__txt">That gap is exactly when most sellers break a rule without realising it.</p>
+</div>
+
+<p>Here's exactly where Amazon draws the line. Check your own setup against both lists.</p>
+
+<!-- VISUAL 2 · Allowed vs not allowed, two panels (stacked on mobile, side by side on tablet+). Alt: "Amazon review policy for sellers: allowed vs not allowed" -->
+<div class="rb-split" role="group" aria-label="Amazon review policy for sellers: allowed vs not allowed">
+  <div class="rb-panel rb-panel--ok">
+    <p class="rb-panel__head"><span class="rb-ico rb-ico--ok" aria-hidden="true">✓</span>Allowed</p>
+    <ul>
+      <li>Request a Review button in Seller Central</li>
+      <li>Amazon Vine, if your product is eligible</li>
+      <li>A neutral insert asking for an honest review</li>
+      <li>Setup guides and warranty registration for every buyer</li>
+    </ul>
+  </div>
+  <div class="rb-panel rb-panel--no">
+    <p class="rb-panel__head"><span class="rb-ico rb-ico--no" aria-hidden="true">✕</span>Not allowed</p>
+    <ul>
+      <li>Free product, refund, cashback or gift card for a review</li>
+      <li>Asking only happy buyers, or sending unhappy ones to WhatsApp first</li>
+      <li>Asking for a positive review or a top rating</li>
+      <li>Reviews by you, your family, staff or a review group</li>
+    </ul>
+  </div>
+</div>
+<p class="rb-note">Source: <a href="https://sellercentral.amazon.in/help/hub/reference/external/GYRKB5RU3FS5TURN" target="_blank" rel="noopener">Amazon Seller Central, Customer Product Reviews policies</a><!-- VERIFY: confirm this Amazon.in help URL resolves when logged in --></p>
+
+<!-- VISUAL 3 · Penalty ladder, 4 steps getting darker red (vertical on mobile, 4 across on tablet+). Alt: "Amazon review policy for sellers: penalties for review manipulation" -->
+<div class="rb-ladder" role="group" aria-label="Amazon review policy for sellers: penalties for review manipulation">
+  <span class="rb-label">Zero tolerance: what Amazon can do</span>
+  <ol>
+    <li>Remove all of the product's reviews</li>
+    <li>Block new reviews and ratings</li>
+    <li>Delist the product permanently</li>
+    <li>Suspend your seller account</li>
+  </ol>
+  <div class="rb-ladder__scale" aria-hidden="true"><span>Serious</span><span>Business-ending</span></div>
+</div>
+<p>Warnings often don't say which order or insert triggered them, so prevention is far easier than appealing. For the global version of these rules, see <a href="https://reviewbuddie.com/compliance/amazon-review-policy">Amazon review policy, explained</a>.</p>
+
+<!-- ============ 2 ============ -->
+<h2 id="common-mistakes"><span class="rb-h-num" aria-hidden="true">2</span>What do Indian sellers think is allowed but actually breaks the policy?</h2>
+<div class="rb-answer">
+  <p>Most violations in India aren't big fraud. They're <strong>"everyone does it" habits</strong> that feel harmless but sit on Amazon's banned list. These five come up most often.</p>
+</div>
+
+<!-- VISUAL 4 · Mistake cards with icons (1 column on mobile, 2 on tablet+). Alt: "Amazon review policy for sellers: 5 common mistakes Indian sellers make" -->
+<ol class="rb-mistakes" aria-label="Amazon review policy for sellers: 5 common mistakes Indian sellers make">
+  <li class="rb-mistake">
+    <div class="rb-mistake__top"><span class="rb-mistake__emoji" aria-hidden="true">💬</span><p class="rb-mistake__title">WhatsApp and Telegram review groups</p></div>
+    <p><span class="rb-quote">"Buy, review, get refunded later"</span> is a paid review, even if someone else sends the refund.</p>
+  </li>
+  <li class="rb-mistake">
+    <div class="rb-mistake__top"><span class="rb-mistake__emoji" aria-hidden="true">💸</span><p class="rb-mistake__title">"Review karo, cashback milega"</p></div>
+    <p>Any benefit tied to a review: cashback, next-order discount, free gift, <span class="rb-quote">"₹100 Paytm for feedback"</span>.</p>
+  </li>
+  <li class="rb-mistake">
+    <div class="rb-mistake__top"><span class="rb-mistake__emoji" aria-hidden="true">👨‍👩‍👧</span><p class="rb-mistake__title">Friends, family and staff</p></div>
+    <p>Banned by name in Amazon's policy, even after a genuine purchase.</p>
+  </li>
+  <li class="rb-mistake">
+    <div class="rb-mistake__top"><span class="rb-mistake__emoji" aria-hidden="true">🚦</span><p class="rb-mistake__title">The "contact us first" card</p></div>
+    <p><span class="rb-quote">"Happy? Review us. Problem? WhatsApp us."</span> is review diversion.</p>
+  </li>
+  <li class="rb-mistake">
+    <div class="rb-mistake__top"><span class="rb-mistake__emoji" aria-hidden="true">🎨</span><p class="rb-mistake__title">Variation stuffing</p></div>
+    <p>Listing a new product as a "colour" of an old bestseller to borrow its stars.</p>
+  </li>
+</ol>
+<p>If any of these is running in your business today, stop it before Amazon's systems find it. None of them needs bad intent to trigger a warning.</p>
+
+<div class="rb-cta">
+  <div class="rb-cta__text">
+    <div class="rb-cta__brand"><svg class="rb-cta__logo" viewBox="0 0 42 43" role="img" aria-label="Reviewbuddie logo"><g fill="#4294D5"><path d="M0 0H29A13 13 0 0 1 42 13V15A13 13 0 0 1 29 28H21V12H0Z"/><rect x="0" y="17" width="11" height="11"/><rect x="11" y="28" width="11" height="11"/><path d="M27 28A15 15 0 0 1 42 43H27Z"/></g></svg> Reviewbuddie</div>
+    <p class="rb-cta__headline">Turn every package into a review — compliantly</p>
+  </div>
+  <a class="rb-cta__btn" href="https://reviewbuddie.com/signup">Start free — no card</a>
+</div>
+
+<!-- ============ 3 ============ -->
+<h2 id="package-inserts"><span class="rb-h-num" aria-hidden="true">3</span>What can you write on a package insert or thank-you card?</h2>
+<div class="rb-answer">
+  <p>Amazon allows inserts that <strong>ask for an honest review in neutral words, the same way for every buyer.</strong> The moment a card asks for a good rating, offers something, or treats unhappy buyers differently, it crosses the line.</p>
+</div>
+
+<!-- VISUAL 5 · Wording swaps: each card shows the risky line (struck through) and its safe replacement. Stacked on mobile, side by side on tablet+. Alt: "Amazon review policy for sellers: safe vs unsafe package insert wording" -->
+<div class="rb-swaps" role="group" aria-label="Amazon review policy for sellers: safe vs unsafe package insert wording">
+  <div class="rb-swap">
+    <span class="rb-swap__tag">Asking for a review</span>
+    <div class="rb-swap__line rb-swap__line--no"><span class="rb-ico rb-ico--no" aria-hidden="true">✕</span><span>"Loved it? Please leave us a great rating!"</span></div>
+    <div class="rb-swap__line rb-swap__line--ok"><span class="rb-ico rb-ico--ok" aria-hidden="true">✓</span><span>"Your honest review helps other buyers decide."</span></div>
+  </div>
+  <div class="rb-swap">
+    <span class="rb-swap__tag">Warranty registration</span>
+    <div class="rb-swap__line rb-swap__line--no"><span class="rb-ico rb-ico--no" aria-hidden="true">✕</span><span>"Register your warranty and get ₹200 off. Just leave a review."</span></div>
+    <div class="rb-swap__line rb-swap__line--ok"><span class="rb-ico rb-ico--ok" aria-hidden="true">✓</span><span>"Scan for the setup guide and warranty registration."</span></div>
+  </div>
+  <div class="rb-swap">
+    <span class="rb-swap__tag">Customer support</span>
+    <div class="rb-swap__line rb-swap__line--no"><span class="rb-ico rb-ico--no" aria-hidden="true">✕</span><span>"Not happy? Contact us before you review."</span></div>
+    <div class="rb-swap__line rb-swap__line--ok"><span class="rb-ico rb-ico--ok" aria-hidden="true">✓</span><span>"Need help with setup? Here's how to reach us."</span></div>
+  </div>
+</div>
+<p>The pattern: safe lines help or inform, unsafe ones reward or filter. Here's a card you can print as it is.</p>
+
+<!-- VISUAL 6 · Printable insert card mock-up (looks like a real card with a QR). Alt: "Amazon review policy for sellers: compliant thank-you card wording" -->
+<figure class="rb-insert" role="group" aria-label="Amazon review policy for sellers: compliant thank-you card wording" style="margin-left:0;margin-right:0">
+  <span class="rb-label">Copy this card wording</span>
+  <div class="rb-insert__card">
+    <p class="rb-insert__brand">Thank you for choosing <mark>[Brand]</mark>.</p>
+    <div class="rb-insert__body">
+      <p class="rb-insert__text">Scan the QR code for setup help and your warranty registration.<br>If you have a moment, an honest review on Amazon helps other buyers decide.</p>
+      <div class="rb-insert__qr" aria-hidden="true">
+        <svg viewBox="0 0 21 21" shape-rendering="crispEdges"><path fill="#1A2233" d="M0 0h7v7H0zM1 1v5h5V1zM2 2h3v3H2zM14 0h7v7h-7zM15 1v5h5V1zM16 2h3v3h-3zM0 14h7v7H0zM1 15v5h5v-5zM2 16h3v3H2zM8 0h1v2H8zM10 1h2v1h-2zM9 3h2v2H9zM12 4h1v3h-1zM8 6h2v2H8zM8 9h3v1H8zM0 8h2v1H0zM3 9h3v1H3zM5 11h2v2H5zM1 11h2v1H1zM12 9h2v2h-2zM15 8h2v1h-2zM18 9h3v1h-3zM14 11h2v1h-2zM17 11h3v2h-3zM9 12h2v3H9zM12 13h2v1h-2zM8 16h3v1H8zM9 18h2v3H9zM12 16h1v5h-1zM14 15h3v2h-3zM18 14h3v1h-3zM15 18h2v3h-2zM18 17h2v2h-2zM19 20h2v1h-2z"/></svg>
+      </div>
+    </div>
+  </div>
+  <figcaption class="rb-insert__cap">Swap in your brand name and keep the rest word for word.</figcaption>
+</figure>
+<p>Need the QR? Use our <a href="https://reviewbuddie.com/tools#qr">free QR code generator for package inserts</a>.</p>
+
+<!-- VISUAL 7 · Watch-out callout (amber). Alt: "Amazon review policy for sellers: QR warranty card rules" -->
+<div class="rb-callout rb-callout--warn" role="note" aria-label="Amazon review policy for sellers: QR warranty card rules">
+  <span class="rb-callout__ico" aria-hidden="true">!</span>
+  <div>
+    <span class="rb-label">Watch out</span>
+    <p>A QR warranty page is fine when the warranty is real and every buyer sees the same page. Never use it to sort happy buyers from unhappy ones, or to sell outside Amazon. <strong>Print one version of the card for every order.</strong></p>
+    <!-- VERIFY: confirm current Amazon.in rules on inserts linking to external warranty-registration pages and on collecting buyer contact details -->
+  </div>
+</div>
+
+<!-- ============ 4 ============ -->
+<h2 id="safe-ways-to-get-reviews"><span class="rb-h-num" aria-hidden="true">4</span>What are the safe ways to get reviews on Amazon India?</h2>
+<div class="rb-answer">
+  <p>There are three official routes: <strong>the Request a Review button, Amazon Vine and Amazon's automatic emails.</strong> On top of these, a better product experience matters most, because buyers who understand a product are the ones who write.</p>
+</div>
+
+<!-- VISUAL 8 · Method cards (no sideways-scrolling table). 1 column on mobile, 2 on tablet+. Alt: "Amazon review policy for sellers: safe ways to get reviews compared" -->
+<div class="rb-methods" role="group" aria-label="Amazon review policy for sellers: safe ways to get reviews compared">
+  <div class="rb-method rb-method--star">
+    <div class="rb-method__top"><span class="rb-method__ico" aria-hidden="true">📩</span><p class="rb-method__name">Request a Review<span class="rb-pill">Start here</span></p></div>
+    <p class="rb-method__how">Amazon emails a standard review and feedback request.</p>
+    <p class="rb-method__know">Once per order, 4–30 days after delivery; text can't be edited.</p>
+  </div>
+  <div class="rb-method">
+    <div class="rb-method__top"><span class="rb-method__ico" aria-hidden="true">🌱</span><p class="rb-method__name">Amazon Vine</p></div>
+    <p class="rb-method__how">Free units go to invited Vine Voices, who review honestly.</p>
+    <p class="rb-method__know">Brand Registry, under 30 reviews, up to 30 units. Best for launches.</p>
+  </div>
+  <div class="rb-method">
+    <div class="rb-method__top"><span class="rb-method__ico" aria-hidden="true">⚙️</span><p class="rb-method__name">Automatic emails</p></div>
+    <p class="rb-method__how">Amazon asks buyers on its own.</p>
+    <p class="rb-method__know">No setup; you don't control timing.</p>
+  </div>
+  <div class="rb-method">
+    <div class="rb-method__top"><span class="rb-method__ico" aria-hidden="true">📦</span><p class="rb-method__name">Inserts and product help</p></div>
+    <p class="rb-method__how">Setup guides, care tips, warranty registration.</p>
+    <p class="rb-method__know">Same message for all; no reward.</p>
+  </div>
+</div>
+<p>Vine reviewers are honest and can be strict, so enrol only products you're confident in. Sending a Request a Review takes four taps, and each order can get only one request:</p>
+
+<!-- VISUAL 9 · Vertical stepper on mobile, horizontal 4-step row on tablet+. Alt: "Amazon review policy for sellers: how to use the Request a Review button" -->
+<div class="rb-steps" role="group" aria-label="Amazon review policy for sellers: how to use the Request a Review button">
+  <span class="rb-label">How to send a Request a Review</span>
+  <ol>
+    <li><strong>Go to orders</strong>Seller Central → Orders → Manage Orders</li>
+    <li><strong>Pick an order</strong>Open one delivered 4–30 days ago</li>
+    <li><strong>Tap the button</strong><span class="rb-kbd">Request a Review</span> (top right)</li>
+    <li><strong>Confirm</strong>Tap <span class="rb-kbd">Yes</span>: Amazon sends it</li>
+  </ol>
+</div>
+
+<!-- VISUAL 10 · Day 0–30 timing bar: grey = too early (0–4), light blue = allowed window (4–30), solid blue = sweet spot for products that need use (7–10). Alt: "Amazon review policy for sellers: when to click Request a Review" -->
+<div class="rb-timing" role="img" aria-label="Amazon review policy for sellers: Request a Review window is day 4 to 30 after delivery; best around day 7 to 10 for products that need a few days of use">
+  <span class="rb-label">When to tap it: days after delivery</span>
+  <div class="rb-timing__bar" aria-hidden="true">
+    <div class="rb-timing__win"></div>
+    <div class="rb-timing__sweet"></div>
+    <span class="rb-timing__flag">Day 7–10</span>
+  </div>
+  <div class="rb-timing__ticks" aria-hidden="true">
+    <span style="left:0">0</span><span style="left:13.33%">4</span><span style="left:33.33%">10</span><span style="left:66.67%">20</span><span style="left:100%">30</span>
+  </div>
+  <div class="rb-timing__legend" aria-hidden="true"><span class="l1">Too early</span><span class="l2">Allowed window</span><span class="l3">Sweet spot</span></div>
+</div>
+
+<!-- VISUAL 11 · Pro tip callout. Alt: "Amazon review policy for sellers: when to click Request a Review" -->
+<div class="rb-callout rb-callout--tip" role="note" aria-label="Amazon review policy for sellers: when to click Request a Review">
+  <span class="rb-callout__ico" aria-hidden="true">💡</span>
+  <div>
+    <span class="rb-label">Pro tip</span>
+    <p>For products that need a few days of use, like a mixer or baby monitor, send Request a Review around <strong>day 7–10, not day 4.</strong></p>
+  </div>
+</div>
+
+<p>And this is what a compliant post-purchase flow looks like when a QR card is part of it.</p>
+
+<!-- VISUAL 12 · Flow: vertical on mobile, 5 across on desktop. Steps 3–4 tagged "Same for all". Alt: "Amazon review policy for sellers: compliant post-purchase review flow" -->
+<ol class="rb-flow" role="img" aria-label="Amazon review policy for sellers: compliant post-purchase review flow">
+  <li><span class="rb-flow__n">1</span><div><strong>Delivered</strong>Order reaches the buyer</div></li>
+  <li><span class="rb-flow__n">2</span><div><strong>QR scan</strong>Buyer scans the card</div></li>
+  <li><span class="rb-flow__n">3</span><div><strong>Help first</strong>Setup guide + warranty<br><span class="rb-flow__same">Same for all</span></div></li>
+  <li class="rb-flow__hl"><span class="rb-flow__n">4</span><div><strong>One request</strong>Same neutral ask for all<br><span class="rb-flow__same">Same for all</span></div></li>
+  <li><span class="rb-flow__n">5</span><div><strong>Buyer decides</strong>Honest review, or none</div></li>
+</ol>
+<p class="rb-note">Steps 3 and 4 are identical for every buyer, which is what keeps it compliant. It's the flow ReviewBuddie is built around; see how in our <a href="https://reviewbuddie.com/compliance">Compliance Center</a>.</p>
+
+<!-- ============ 5 ============ -->
+<h2 id="unfair-1-star-review"><span class="rb-h-num" aria-hidden="true">5</span>What should you do about an unfair 1-star review?</h2>
+<div class="rb-answer">
+  <p>Report it only if it breaks Amazon's Community Guidelines, for example when it's about delivery or the seller rather than the product. <strong>An honest review, even a harsh one, will stay,</strong> and fighting it the wrong way creates a bigger problem.</p>
+</div>
+
+<!-- VISUAL 13 · Do vs Don't panels (stacked on mobile, side by side on tablet+). Alt: "Amazon review policy for sellers: how to handle a negative review" -->
+<div class="rb-split" role="group" aria-label="Amazon review policy for sellers: how to handle a negative review">
+  <div class="rb-panel rb-panel--ok">
+    <p class="rb-panel__head"><span class="rb-ico rb-ico--ok" aria-hidden="true">✓</span>Do</p>
+    <ul>
+      <li>Tap "Report" with a short reason and the product link</li>
+      <li>Check if it's only about delivery: those get removed, FBA or not</li>
+      <li>Help the buyer via Buyer-Seller Messaging, as for any complaint</li>
+    </ul>
+  </div>
+  <div class="rb-panel rb-panel--no">
+    <p class="rb-panel__head"><span class="rb-ico rb-ico--no" aria-hidden="true">✕</span>Don't</p>
+    <ul>
+      <li>Ask the buyer to remove or change the review</li>
+      <li>Offer a refund or gift on the condition the review changes</li>
+      <li>Contact the buyer on WhatsApp or phone outside Amazon</li>
+    </ul>
+  </div>
+</div>
+<p>Read your 1-stars for patterns. Three saying "couldn't figure out how to use it" is an instructions problem, not a review problem, so <strong>treat every honest 1-star as free product research.</strong></p>
+
+<!-- ============ 6 ============ -->
+<h2 id="what-changed-2026"><span class="rb-h-num" aria-hidden="true">6</span>What changed in Amazon's review rules in 2026?</h2>
+<div class="rb-answer">
+  <p>Two shifts matter for Indian sellers: <strong>Amazon split reviews across variations that work differently, and India tightened its e-commerce rules.</strong> Underneath both, fake reviews were already illegal under Indian consumer law.</p>
+</div>
+
+<!-- VISUAL 14 · Vertical timeline of changes (newest first; grey dots = laws already in place). Alt: "Amazon review policy for sellers: 2026 changes in India" -->
+<ol class="rb-timeline" aria-label="Amazon review policy for sellers: 2026 changes in India">
+  <li>
+    <span class="rb-date">Feb–May 2026</span>
+    <h3>Variation review sharing</h3>
+    <p>Variations that work differently show only their own reviews. Build reviews per key variation.<!-- VERIFY: confirm rollout on Amazon.in --></p>
+  </li>
+  <li>
+    <span class="rb-date">Notified 9 Sept 2026 · In force 1 Jan 2027</span>
+    <h3>E-Commerce (Amendment) Rules, 2026</h3>
+    <p>Stricter rules on dark patterns, discounts and seller disclosures, including ratings.</p>
+  </li>
+  <li class="is-base">
+    <span class="rb-date">BIS standard · Voluntary now</span>
+    <h3>IS 19000:2022 (online reviews)</h3>
+    <p>Bars editing reviews or discouraging negative ones. A mandatory version has been proposed.</p>
+  </li>
+  <li class="is-base">
+    <span class="rb-date">Already law</span>
+    <h3>Consumer Protection Act, 2019</h3>
+    <p>Fake reviews already count as an unfair trade practice.</p>
+  </li>
+</ol>
+<p class="rb-note">Sources: <a href="https://consumeraffairs.nic.in/" target="_blank" rel="noopener">Department of Consumer Affairs</a>, <a href="https://www.bis.gov.in/" target="_blank" rel="noopener">Bureau of Indian Standards</a></p>
+<p>The 2026 rules mostly bind marketplaces, but sellers stay directly liable for unfair trade practices under the Act. Detection is also better than most sellers think:</p>
+
+<div class="rb-fact" role="img" aria-label="Amazon says it blocked over 250 million suspected fake reviews in 2023">
+  <span class="rb-fact__num">250M+</span>
+  <p>suspected fake reviews Amazon says it blocked in 2023.</p>
+</div>
+
+<h2 id="key-takeaways">Key takeaways</h2>
+<!-- VISUAL 15 · Checklist box (navy) with blue ticks, 5 items. Alt: "Amazon review policy for sellers: key takeaways checklist" -->
+<ul class="rb-takeaways" aria-label="Amazon review policy for sellers: key takeaways checklist">
+  <li>Ask for reviews, never shape them: no rewards, no "happy buyers only".</li>
+  <li>Family, staff and review groups can't review, even after genuine purchases.</li>
+  <li>Inserts are safe only with neutral wording every buyer gets.</li>
+  <li>Use Request a Review, Vine for launches, and better product help.</li>
+  <li>Report only guideline-breaking reviews; fix what honest 1-stars point to.</li>
+</ul>
+
+</div>
+</div></body></html>
