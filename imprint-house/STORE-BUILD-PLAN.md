@@ -47,6 +47,16 @@ Placeholder images: `placeholder-images/<handle>.jpg` (2048×2048, light grey, "
 8. Owner to do in Shopify admin: theme choice, domain, payments, GST number, policies.
 
 ## Open questions for owner
-- Prices incl. or excl. GST? (mocks say excl.)
+- GST: prices INCLUDE GST (confirmed; store setting taxesIncluded = true)
 - GST number to show on site
 - Domain (.in check pending)
+
+## Build log — 1 Nov 2026 (store dhcx64-nt.myshopify.com, trial)
+Done via Shopify connector:
+- 11 mock products created, placeholder images attached, set ACTIVE + published to Online Store (store is password-protected on trial)
+- Smart collections: Ready Gift Packages, Keychains, Pens, Bottles & Drinkware, Desk Accessories
+- Pages: How it works, Who we work with, Our story (needs one real family detail), Get a free sample or quote (contact template), FAQ
+- Main menu + footer menu rebuilt (footer has WhatsApp link)
+- Prices include GST (taxesIncluded = true)
+Still for the owner in Shopify admin: rename store (Settings → General), choose theme + homepage sections, WhatsApp button app, domain, payments, policies, logo.
+FAQ assumptions to confirm: 5–10 working-day lead time, delivery across India, colour via outsourcing.
