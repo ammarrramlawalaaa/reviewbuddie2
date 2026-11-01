@@ -60,3 +60,12 @@ Done via Shopify connector:
 - Prices include GST (taxesIncluded = true)
 Still for the owner in Shopify admin: rename store (Settings → General), choose theme + homepage sections, WhatsApp button app, domain, payments, policies, logo.
 FAQ assumptions to confirm: 5–10 working-day lead time, delivery across India, colour via outsourcing.
+
+## Build log — 1 Nov 2026 (later)
+- Plan upgraded to Basic; password removed by owner.
+- Product photos swapped to free Pexels stock images (alt text says "sample photo"); placeholders deleted.
+- Files: hero-laser-engraving.jpg, workshop-laser.jpg (Pexels) uploaded to Shopify Files.
+- Theme copy "Imprint House — new homepage" (gid://shopify/OnlineStoreTheme/142608236605), unpublished:
+  - templates/index.json = theme/index.json (hero, trust strip, packages, how it works, products, budget planner, who we work with, story, CTA)
+  - sections/header-group.json = theme/header-group.json (3 announcements, floating WhatsApp button, country/language selectors off)
+- Owner must publish the copy (Online Store → Themes → Publish); API cannot publish themes.
