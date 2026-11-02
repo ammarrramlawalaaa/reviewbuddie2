@@ -1,6 +1,6 @@
 import json, sys, re
 PREVIEW = len(sys.argv)>1 and sys.argv[1]=="preview"
-WA="https://wa.me/919109535267?text=Hi%2C%20I%27d%20like%20a%20free%20sample%20with%20my%20logo"
+WA="https://wa.me/919109535267?text=Hi%2C%20I%27d%20like%20a%20quote%20for%20engraved%20gifts%20with%20my%20logo"
 HERO_IMG = "hero.jpg" if PREVIEW else "{{ 'hero-laser-engraving.jpg' | file_url }}"
 STORY_IMG = "story.jpg" if PREVIEW else "{{ 'story-engraving-closeup.jpg' | file_url }}"
 
@@ -119,8 +119,8 @@ CSS = """<link rel="preconnect" href="https://fonts.googleapis.com"><link href="
 hero = CSS + f"""<div class="ih"><section class="ih-hero"><div class="wrap g">
 <div class="reveal"><span class="eb">Laser-engraved corporate gifts · Delivered across India</span>
 <h1>Gifts with your name <em>cut into metal.</em></h1>
-<p class="lead">Keychains, pens, bottles and ready gift kits — engraved in our own workshop, sampled free, and delivered ready to hand over. For shops, clinics, schools, dealerships and offices.</p>
-<div style="display:flex;gap:.8rem;flex-wrap:wrap"><a class="btn b-brass" href="/pages/get-a-quote">Get a free sample →</a><a class="btn b-ghost" href="{WA}">WhatsApp us</a></div>
+<p class="lead">Keychains, pens, bottles and ready gift kits — engraved in our own workshop and delivered ready to hand over. For shops, clinics, schools, dealerships and offices.</p>
+<div style="display:flex;gap:.8rem;flex-wrap:wrap"><a class="btn b-brass" href="/pages/3d-designer">Design yours in 3D →</a><a class="btn b-ghost" href="{WA}">WhatsApp us</a></div>
 <div class="stats"><div><b>24 hrs</b><span>Free mockup</span></div><div><b>50+</b><span>Pieces per order</span></div><div><b>100%</b><span>In-house</span></div></div></div>
 <div class="reveal" style="position:relative"><div class="pic" style="background-image:url('{HERO_IMG}')"><div class="scan"></div></div><div class="tag">YOUR LOGO</div></div>
 </div></section>
@@ -187,14 +187,27 @@ document.querySelectorAll('#ihChips button').forEach(function(b){b.addEventListe
 swatches();upd();
 function load(){if(!window.WebGLRenderingContext)return;var sc=document.createElement('script');sc.src='__JS__';sc.async=true;sc.onload=function(){var m=window.IHEngrave;if(!m||!m.mount)return;api=m.mount(stage,{text:st.t});if(api){if(st.p!=='keychain')api.setProduct(st.p);if(st.c)api.setColour(st.c);api.setText(st.t)}};document.head.appendChild(sc)}
 if('IntersectionObserver' in window){var io=new IntersectionObserver(function(e){if(e[0].isIntersecting){io.disconnect();load()}},{rootMargin:'400px'});io.observe(stage)}else load();
-})();</script>""".replace("__WA__", WA_BASE + "Hi%2C%20I%27d%20like%20a%20free%20sample%20with%20my%20logo").replace("__WABASE__", WA_BASE).replace("__JS__", ENGRAVE_JS)
+})();</script>""".replace("__WA__", WA_BASE + "Hi%2C%20I%27d%20like%20a%20quote%20for%20engraved%20gifts%20with%20my%20logo").replace("__WABASE__", WA_BASE).replace("__JS__", ENGRAVE_JS)
+
+TEASER_IMG = "p1.jpg" if PREVIEW else "{%- assign tk = all_products['classic-metal-keychain'] -%}{%- if tk.featured_image -%}{{ tk.featured_image | image_url: width: 1000 }}{%- endif -%}"
+demo = """<style>.ih-teaser{display:grid;background:var(--ink);color:#fff;border-radius:24px;overflow:hidden}@media(min-width:900px){.ih-teaser{grid-template-columns:1.1fr .9fr}}
+.ih-teaser .tx{padding:clamp(1.8rem,5vw,3.5rem)}.ih-teaser h2{color:#fff}.ih-teaser p{color:#c4c4c4}
+.ih-teaser ul{list-style:none;padding:0;margin:1.4rem 0 2rem;display:grid;gap:.55rem}.ih-teaser li{color:#e2e2e2;font-size:.95rem}.ih-teaser li:before{content:"\\2726";color:var(--brass);margin-right:.6rem}
+.ih-teaser .ph{min-height:300px;background:#222 center/cover no-repeat}</style>
+<div class="ih"><section class="ih-sec" style="padding-top:0"><div class="wrap"><div class="ih-teaser">
+<div class="tx"><span class="eb">New &middot; 3D Designer</span><h2>Upload your logo.<br>See it engraved in 3D.</h2>
+<p>Place your logo and text on a keychain (front and back), pen, flask or mug, and check exactly how it will look before you order.</p>
+<ul><li>Upload PNG, JPG or SVG &mdash; converted to a laser engraving automatically</li><li>Drag to place, slide to resize</li><li>Download your preview and send it to us on WhatsApp</li></ul>
+<a class="btn b-brass" href="/pages/3d-designer">Open the 3D designer &rarr;</a></div>
+<div class="ph" style="background-image:url('__TIMG__')" role="img" aria-label="Laser-engraved metal keychain"></div>
+</div></div></section></div>""".replace("__TIMG__", TEASER_IMG)
 
 if PREVIEW:
     pr=[("Classic Metal Keychain","45"),("Car Key Tag — Number Plate Keychain","65"),("Metal Ball Pen","80"),("Leather & Metal Keychain","95"),("Metal Visiting Card Holder","150"),("Premium Metal Pen in Gift Box","180"),("Insulated Steel Tumbler","320"),("Stainless Steel Bottle — 750 ml","350")]
     pg="".join(f'<a class="ih-p reveal" href="#"><div class="im"><img src="p{i%3+1}.jpg"><span class="q">Min. 50 pcs</span></div><h4>{n}</h4><div class="pp">From <b>₹{p}</b> / piece</div></a>' for i,(n,p) in enumerate(pr))
 else:
     pg="""{%- assign items = collections['all'].products | sort: 'price' -%}{%- assign shown = 0 -%}{%- for product in items -%}{%- if product.type == 'Package' or shown >= 8 -%}{%- continue -%}{%- endif -%}{%- assign shown = shown | plus: 1 -%}{%- assign pp = product.price_min -%}{%- for v in product.variants -%}{%- if v.title contains 'Bulk' -%}{%- assign pp = v.price | divided_by: 50 -%}{%- break -%}{%- endif -%}{%- endfor -%}
-<a class="ih-p reveal" href="{{ product.url }}"><div class="im">{{ product.featured_image | image_url: width: 700 | image_tag: loading: 'lazy', alt: product.title }}<span class="q">Min. 50 pcs · Free sample</span></div><h4>{{ product.title }}</h4><div class="pp">From <b>{{ pp | money_without_trailing_zeros | replace: 'Rs. ', '₹' | replace: 'Rs.', '₹' }}</b> / piece</div></a>{%- endfor -%}"""
+<a class="ih-p reveal" href="{{ product.url }}"><div class="im">{{ product.featured_image | image_url: width: 700 | image_tag: loading: 'lazy', alt: product.title }}<span class="q">Min. 50 pcs</span></div><h4>{{ product.title }}</h4><div class="pp">From <b>{{ pp | money_without_trailing_zeros | replace: 'Rs. ', '₹' | replace: 'Rs.', '₹' }}</b> / piece</div></a>{%- endfor -%}"""
 products=f"""<div class="ih"><section class="ih-sec"><div class="wrap"><div class="ih-head"><div><span class="eb">Engrave your logo on</span><h2>Things people actually keep.</h2></div><a class="btn b-line" href="/collections/all">View all products →</a></div><div class="ih-pg">{pg}</div></div></section></div>"""
 
 steps=f"""<div class="ih"><section class="ih-sec ih-steps"><div class="wrap"><span class="eb">How it works</span><h2 style="color:#fff;max-width:640px">Zero risk. You see it before you pay a rupee.</h2>
@@ -224,7 +237,7 @@ story=f"""<div class="ih"><section class="ih-sec ih-story" style="background:var
 <div class="ih-pr"><div><b>01</b><p><strong>See it before you pay.</strong> A free sample with your logo.</p></div><div><b>02</b><p><strong>Made in our own workshop.</strong> No outsourcing — quality and timing stay in our hands.</p></div><div><b>03</b><p><strong>Ready to hand over.</strong> Packed, labelled, GST invoice, on time.</p></div></div>
 <a class="btn b-line" href="/pages/our-story">Read our story →</a></div></div></section></div>"""
 
-cta=f"""<div class="ih"><section class="ih-sec ih-cta"><div class="wrap"><span class="eb" style="color:var(--ink)">Free · No commitment</span><h2>Send us your logo.<br>Hold a free sample in days.</h2>
+cta=f"""<div class="ih"><section class="ih-sec ih-cta"><div class="wrap"><span class="eb" style="color:var(--ink)">Free digital mockup · No commitment</span><h2>Send us your logo.<br>See it engraved in 24 hours.</h2>
 <div style="display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap;margin-top:1.8rem"><a class="btn b-dark" href="{WA}">WhatsApp +91 91095 35267</a><a class="btn b-line" href="/pages/get-a-quote">Request a quote</a></div></div></section></div>"""
 
 KLIQ="""[{%- for product in collections['ready-gift-packages'].products -%}{%- assign pp = product.price_min -%}{%- for v in product.variants -%}{%- if v.title contains 'Bulk' -%}{%- assign pp = v.price | divided_by: 50 -%}{%- break -%}{%- endif -%}{%- endfor -%}{%- assign nm = product.title | split: ' (' | first | split: ' — ' | first -%}{%- assign inc = product.description | split: '</p>' | first | strip_html | remove: "What's inside:" | strip | truncatewords: 14 -%}{n:{{ nm | json }},p:{{ pp | divided_by: 100 }},u:{{ product.url | json }},d:{{ inc | json }}}{%- unless forloop.last -%},{%- endunless -%}{%- endfor -%}]"""
