@@ -79,3 +79,8 @@ FAQ assumptions to confirm: 5–10 working-day lead time, delivery across India,
 - Pages: Ajmer removed, Our story placeholder removed, FAQ adds free-sample, delivery cost, returns answers.
 - Policies: write access denied for API — texts in LAUNCH-CHECKLIST.md for owner to paste.
 - Launch theme = "Imprint House — with logo" (142635270205): logo, real hero/story photos, no scroll-hidden content, custom-set card, planner reads kits from store, ₹ on homepage, WhatsApp/quote click events (whatsapp_click, quote_form_submit via Shopify.analytics.publish).
+
+## Build log — 3 Nov 2026 (homepage v3)
+- Homepage: hero = laser-machine photo + scan line + YOUR LOGO tag (owner's choice); packages (+ custom set card); 3D engraving preview; products; CTA. Removed: budget planner, how-it-works, who-we-work-with, our-story sections.
+- Pages How it works / Who we work with / Our story set to hidden (isPublished false). Main menu: Gift Packages · Products · FAQ · Get a free sample. Footer "Company" column replaced by "Help" (FAQ, shipping, returns, contact).
+- 3D preview: theme/src/engrave.js → bundled with esbuild (three r170, IIFE global IHEngrave) to theme asset assets/ih-engrave.js (~136 KB gzipped), lazy-loaded near viewport; CSS keychain fallback if no WebGL. Models: keychain, metal pen (black/silver/blue), roller pen, flask (black/red), mug (navy/black). WhatsApp CTA pre-fills product, colour and typed name.
