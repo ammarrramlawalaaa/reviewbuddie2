@@ -185,7 +185,7 @@ function swatches(){var P=C[st.p];sw.innerHTML='';P.c.forEach(function(x,i){var 
 inp.addEventListener('input',function(){st.t=inp.value.trim()||'Your Business';upd();clearTimeout(tm);tm=setTimeout(function(){api&&api.setText(st.t)},250)});
 document.querySelectorAll('#ihChips button').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('#ihChips button').forEach(function(y){y.classList.remove('on')});b.classList.add('on');st.p=b.dataset.p;st.c=0;swatches();upd();api&&api.setProduct(st.p)})});
 swatches();upd();
-function load(){if(!window.WebGLRenderingContext)return;import('__JS__').then(function(m){api=m.mount(stage,{text:st.t});if(api){if(st.p!=='keychain')api.setProduct(st.p);if(st.c)api.setColour(st.c);api.setText(st.t)}}).catch(function(){})}
+function load(){if(!window.WebGLRenderingContext)return;var sc=document.createElement('script');sc.src='__JS__';sc.async=true;sc.onload=function(){var m=window.IHEngrave;if(!m||!m.mount)return;api=m.mount(stage,{text:st.t});if(api){if(st.p!=='keychain')api.setProduct(st.p);if(st.c)api.setColour(st.c);api.setText(st.t)}};document.head.appendChild(sc)}
 if('IntersectionObserver' in window){var io=new IntersectionObserver(function(e){if(e[0].isIntersecting){io.disconnect();load()}},{rootMargin:'400px'});io.observe(stage)}else load();
 })();</script>""".replace("__WA__", WA_BASE + "Hi%2C%20I%27d%20like%20a%20free%20sample%20with%20my%20logo").replace("__WABASE__", WA_BASE).replace("__JS__", ENGRAVE_JS)
 
