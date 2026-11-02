@@ -1,8 +1,8 @@
 import json, sys, re
 PREVIEW = len(sys.argv)>1 and sys.argv[1]=="preview"
 WA="https://wa.me/919109535267?text=Hi%2C%20I%27d%20like%20a%20free%20sample%20with%20my%20logo"
-HERO_IMG = "hero.jpg" if PREVIEW else "{{ 'hero-laser-engraving.jpg' | file_url }}"
-STORY_IMG = "story.jpg" if PREVIEW else "{{ 'workshop-laser.jpg' | file_url }}"
+HERO_IMG = "hero.jpg" if PREVIEW else "{{ 'hero-engraved-gift-set.jpg' | file_url: width: 1400 }}"
+STORY_IMG = "story.jpg" if PREVIEW else "{{ 'story-engraving-closeup.jpg' | file_url: width: 1200 }}"
 
 CSS = """<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -19,7 +19,6 @@ CSS = """<link rel="preconnect" href="https://fonts.googleapis.com"><link href="
 .ih .b-brass{background:var(--brass);color:#16181a}.ih .b-brass:hover{background:var(--brass2)}
 .ih .b-ghost{border:1px solid rgba(255,255,255,.35);color:#fff}.ih .b-ghost:hover{background:#fff;color:var(--ink)}
 .ih .b-dark{background:var(--ink);color:#fff}.ih .b-line{border:1px solid var(--ink);color:var(--ink)}.ih .b-line:hover{background:var(--ink);color:#fff}
-.ih .reveal{opacity:0;transform:translateY(24px);transition:opacity .8s ease,transform .8s ease}.ih .reveal.in{opacity:1;transform:none}
 /* hero */
 .ih-hero{background:var(--ink);color:#fff;position:relative;overflow:hidden}
 .ih-hero .g{display:grid;gap:2.5rem;padding-top:clamp(3rem,7vw,6rem);padding-bottom:clamp(3rem,7vw,6rem);align-items:center}@media(max-width:899px){.ih-hero .pic{aspect-ratio:4/3}.ih-hero .stats{gap:1.3rem}.ih-hero .stats b{font-size:1.5rem}.ih-hero .stats span{font-size:.66rem}}
@@ -80,7 +79,8 @@ CSS = """<link rel="preconnect" href="https://fonts.googleapis.com"><link href="
 .ih-beam.go{animation:beam 1s ease}
 @keyframes beam{0%{left:10%;opacity:1}100%{left:90%;opacity:0}}
 /* products */
-.ih-pg{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}@media(min-width:900px){.ih-pg{grid-template-columns:repeat(4,1fr);gap:22px}}
+.ih-pg{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}@media(min-width:900px){.ih-pg{grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:22px}}@media(max-width:899px){.ih-p:last-child:nth-child(odd){grid-column:1/-1}.ih-p:last-child:nth-child(odd) .im{aspect-ratio:16/10}}
+.ih-custom{background:var(--paper);border:1px dashed var(--brass);justify-content:center}.ih-custom .bd{justify-content:center}.ih-custom .btn{align-self:flex-start;margin-top:.6rem}
 .ih-p{color:var(--ink);display:block}
 .ih-p .im{aspect-ratio:1/1;border-radius:16px;overflow:hidden;background:#eee;position:relative}
 .ih-p .im img{width:100%;height:100%;object-fit:cover;transition:transform .6s}.ih-p:hover .im img{transform:scale(1.07)}
@@ -92,8 +92,7 @@ CSS = """<link rel="preconnect" href="https://fonts.googleapis.com"><link href="
 .ih-steps{background:var(--ink);color:#fff}
 .ih-st{display:grid;gap:0;margin-top:3rem;counter-reset:s}@media(min-width:900px){.ih-st{grid-template-columns:repeat(4,1fr)}}
 .ih-st div{padding:2rem 1.6rem 2rem 0;border-top:1px solid #3a3f44;position:relative}
-.ih-st div:before{content:"";position:absolute;top:-1px;left:0;width:0;height:2px;background:var(--brass);transition:width 1.2s ease}
-.ih-st.in div:before{width:100%}
+.ih-st div:before{content:"";position:absolute;top:-1px;left:0;width:100%;height:2px;background:var(--brass)}
 .ih-st b{font-family:Fraunces,Georgia,serif;font-size:3.2rem;color:var(--brass);font-weight:600;display:block;line-height:1}
 .ih-st h4{font-size:1.1rem;margin:1rem 0 .5rem}.ih-st p{color:#a9a9a9;font-size:.93rem}
 /* planner */
@@ -118,15 +117,15 @@ CSS = """<link rel="preconnect" href="https://fonts.googleapis.com"><link href="
 </style>"""
 
 hero = CSS + f"""<div class="ih"><section class="ih-hero"><div class="wrap g">
-<div class="reveal"><span class="eb">Laser-engraved corporate gifts · Ajmer</span>
+<div class="reveal"><span class="eb">Laser-engraved corporate gifts · Delivered across India</span>
 <h1>Gifts with your name <em>cut into metal.</em></h1>
 <p class="lead">Keychains, pens, bottles and ready gift kits — engraved in our own workshop, sampled free, and delivered ready to hand over. For shops, clinics, schools, dealerships and offices.</p>
 <div style="display:flex;gap:.8rem;flex-wrap:wrap"><a class="btn b-brass" href="/pages/get-a-quote">Get a free sample →</a><a class="btn b-ghost" href="{WA}">WhatsApp us</a></div>
 <div class="stats"><div><b>24 hrs</b><span>Free mockup</span></div><div><b>50+</b><span>Pieces per order</span></div><div><b>100%</b><span>In-house</span></div></div></div>
-<div class="reveal" style="position:relative"><div class="pic" style="background-image:url('{HERO_IMG}')"><div class="scan"></div></div><div class="tag">YOUR LOGO</div></div>
+<div class="reveal" style="position:relative"><div class="pic" style="background-image:url('{HERO_IMG}')"><div class="scan"></div></div></div>
 </div></section>
 <div class="ih-mq"><div class="t">{"".join('<span>'+x+'</span><i>✦</i>' for x in ["Car dealerships","Clinics","Schools","Hotels & resorts","Real estate","Startups","Wedding planners","Offices","Cafés"]*2)}</div></div></div>
-<script>(function(){{var o=new IntersectionObserver(function(e){{e.forEach(function(x){{if(x.isIntersecting){{x.target.classList.add('in');o.unobserve(x.target)}}}})}},{{threshold:.15}});document.querySelectorAll('.ih .reveal,.ih .ih-st').forEach(function(el){{o.observe(el)}})}})();</script>"""
+"""
 
 if PREVIEW:
     pk_items=[("Essential","Essential Gift Kit","249","Engraved metal pen + keychain in a black gift box with foam insert.","p1.jpg",""),
@@ -135,7 +134,7 @@ if PREVIEW:
     pk="".join(f'<a class="ih-card{d} reveal" href="#" style="position:relative">{"<span class=pop>Most popular</span>" if d else ""}<div class="im"><img src="{im}"></div><div class="bd"><span class="tier">{t}</span><h3>{n}</h3><div class="pr">₹{p} <small>/ person</small></div><p class="inc">{inc}</p><span class="go">View package <span>→</span></span></div></a>' for t,n,p,inc,im,d in pk_items)
 else:
     pk="""{%- for product in collections['ready-gift-packages'].products limit: 3 -%}{%- assign pp = product.price_min -%}{%- for v in product.variants -%}{%- if v.title contains 'Bulk' -%}{%- assign pp = v.price | divided_by: 50 -%}{%- break -%}{%- endif -%}{%- endfor -%}{%- assign nm = product.title | split: ' (' | first -%}{%- assign inc = product.description | split: '</p>' | first | strip_html | remove: "What's inside:" | strip -%}
-<a class="ih-card{% if forloop.index == 2 %} dark{% endif %} reveal" href="{{ product.url }}" style="position:relative">{% if forloop.index == 2 %}<span class="pop">Most popular</span>{% endif %}<div class="im">{{ product.featured_image | image_url: width: 900 | image_tag: loading: 'lazy', alt: nm }}</div><div class="bd"><span class="tier">{{ nm | split: ' ' | first }}</span><h3>{{ nm }}</h3><div class="pr">{{ pp | money_without_trailing_zeros }} <small>/ person</small></div><p class="inc">{{ inc }}</p><span class="go">View package <span>→</span></span></div></a>{%- endfor -%}"""
+<a class="ih-card{% if forloop.index == 2 %} dark{% endif %} reveal" href="{{ product.url }}" style="position:relative">{% if forloop.index == 2 %}<span class="pop">Most popular</span>{% endif %}<div class="im">{{ product.featured_image | image_url: width: 900 | image_tag: loading: 'lazy', alt: nm }}</div><div class="bd"><span class="tier">{{ nm | split: ' ' | first }}</span><h3>{{ nm }}</h3><div class="pr">{{ pp | money_without_trailing_zeros }} <small>/ person</small></div><p class="inc">{{ inc }}</p><span class="go">View package <span>→</span></span></div></a>{%- endfor -%}<div class="ih-card ih-custom"><div class="bd"><span class="tier">Custom</span><h3>Build your own set</h3><div class="pr" style="font-size:1.5rem">Any budget</div><p class="inc">Mix pens, keychains, bottles and mugs, add each person\'s name, and choose your gift box. Tell us your budget per person and we\'ll put a set together.</p><a class="btn b-brass" href="https://wa.me/919109535267?text=Hi%2C%20I%27d%20like%20a%20custom%20gift%20set%20for%20my%20team">Plan a custom set →</a></div></div>"""
 packages=f"""<div class="ih"><section class="ih-sec"><div class="wrap"><div class="ih-head"><div><span class="eb">Ready gift packages</span><h2>Pick a budget.<br>We handle the rest.</h2></div><p>Engraved, boxed, labelled and delivered — complete kits priced per person, GST included. Minimum 50 kits.</p></div><div class="ih-pk">{pk}</div></div></section></div>"""
 
 demo=f"""<div class="ih"><section class="ih-sec ih-demo"><div class="wrap g">
@@ -167,27 +166,30 @@ planner="""<div class="ih"><section class="ih-sec" style="background:var(--paper
 <div><label>Budget per person<span class="v" id="pbV">₹500</span><input type="range" id="pb" min="100" max="1500" step="50" value="500"></label>
 <label>Number of people<span class="v" id="pqV">100</span><input type="range" id="pq" min="50" max="1000" step="10" value="100"></label>
 <div class="ih-res" id="pr"></div></div></div></div></section></div>
-<script>(function(){var K=[{n:"Essential Gift Kit",p:249,u:"/products/essential-gift-kit-under-300",d:"Engraved pen + keychain in a black gift box"},{n:"Executive Gift Kit",p:549,u:"/products/executive-gift-kit-under-600",d:"Insulated flask + pen + keychain in a black gift box"},{n:"Signature Gift Kit",p:1099,u:"/products/signature-gift-kit-under-1-200",d:"Bottle, premium pen, card holder & keychain in a rigid box"}];
+<script>(function(){var K=__K__;
 function t(q,p){return q>=250?Math.round(p*.82):q>=100?Math.round(p*.9):p}
 var B=document.getElementById('pb'),Q=document.getElementById('pq'),R=document.getElementById('pr');
 function f(){var b=+B.value,q=+Q.value,k=null;document.getElementById('pbV').textContent='₹'+b;document.getElementById('pqV').textContent=q;
 for(var i=0;i<K.length;i++){if(t(q,K[i].p)<=b)k=K[i]}
 if(!k){R.innerHTML='<b>Under ₹'+t(q,249)+' per person?</b><p style="margin-top:.4rem;color:#6b6b6b">A single engraved keychain or pen works great — <a href="/collections/all" style="color:#16181a;text-decoration:underline">see products</a>.</p>';return}
-var pp=t(q,k.p);R.innerHTML='<span class="eb">We suggest</span><h3 style="font-family:Fraunces,Georgia,serif;font-size:1.6rem;margin:.5rem 0 .3rem">'+k.n+'</h3><p style="color:#6b6b6b">'+k.d+'</p><p style="margin:1rem 0 1.2rem;font-size:1.05rem">₹'+pp+' × '+q+' = <b style="font-family:Fraunces,Georgia,serif;font-size:1.6rem">₹'+(pp*q).toLocaleString('en-IN')+'</b></p><a class="btn b-dark" href="'+k.u+'">View package →</a>'}
+var top=K[K.length-1],ex=(b>=t(q,top.p)*1.6)?'<p style="margin:0 0 1rem;color:#6b6b6b;font-size:.9rem">Bigger budget? We can build a custom set &mdash; <a href="https://wa.me/919109535267?text=Hi%2C%20I%27d%20like%20a%20custom%20gift%20set%20for%20my%20team" style="color:#16181a;text-decoration:underline">ask on WhatsApp</a>.</p>':'';var pp=t(q,k.p);R.innerHTML='<span class="eb">We suggest</span><h3 style="font-family:Fraunces,Georgia,serif;font-size:1.6rem;margin:.5rem 0 .3rem">'+k.n+'</h3><p style="color:#6b6b6b">'+k.d+'</p><p style="margin:1rem 0 1.2rem;font-size:1.05rem">₹'+pp+' × '+q+' = <b style="font-family:Fraunces,Georgia,serif;font-size:1.6rem">₹'+(pp*q).toLocaleString('en-IN')+'</b></p>'+ex+'<a class="btn b-dark" href="'+k.u+'">View package →</a>'}
 B.addEventListener('input',f);Q.addEventListener('input',f);f()})();</script>"""
 
-W=[("🚗","Car & bike dealerships","Key tag with each customer's vehicle number + your logo, handed over at every delivery."),("🩺","Clinics & hospitals","Weighty metal pens and desk pieces for doctors, staff and partners."),("🎓","Schools & coaching","Awards and farewell gifts engraved with each student's name."),("🏨","Hotels & resorts","Room key tags and guest souvenirs for Ajmer & Pushkar properties."),("🏢","Real estate","Engraved key tags at flat handover — kept for years."),("💼","Offices & startups","Onboarding kits, work anniversaries and team rewards.")]
+W=[("🚗","Car & bike dealerships","Key tag with each customer's vehicle number + your logo, handed over at every delivery."),("🩺","Clinics & hospitals","Weighty metal pens and desk pieces for doctors, staff and partners."),("🎓","Schools & coaching","Awards and farewell gifts engraved with each student's name."),("🏨","Hotels & resorts","Room key tags and guest souvenirs with your property's logo."),("🏢","Real estate","Engraved key tags at flat handover — kept for years."),("💼","Offices & startups","Onboarding kits, work anniversaries and team rewards.")]
 who=f"""<div class="ih"><section class="ih-sec"><div class="wrap"><div class="ih-head"><div><span class="eb">Who we work with</span><h2>Built for your kind of business.</h2></div><a class="btn b-line" href="/pages/who-we-work-with">All industries →</a></div><div class="ih-who">{"".join(f'<div class="ih-w reveal"><span class="ic">{i}</span><h4>{a}</h4><p>{b}</p></div>' for i,a,b in W)}</div></div></section></div>"""
 
 story=f"""<div class="ih"><section class="ih-sec ih-story" style="background:var(--paper)"><div class="wrap g">
 <div class="ph reveal" style="background-image:url('{STORY_IMG}')"></div>
-<div class="reveal"><span class="eb">Our story</span><blockquote>"Branded gifts kept fading, peeling and getting thrown away. So we brought a laser home."</blockquote><p style="color:var(--muted)">We're a family workshop in Ajmer. Engraving doesn't fade — it's cut into the metal. Every piece is made under our roof, checked by family, and sampled before you commit.</p>
+<div class="reveal"><span class="eb">Our story</span><blockquote>"Branded gifts kept fading, peeling and getting thrown away. So we brought a laser home."</blockquote><p style="color:var(--muted)">We're a family-run workshop. Engraving doesn't fade — it's cut into the metal. Every piece is made under our roof, checked by family, and sampled before you commit.</p>
 <div class="ih-pr"><div><b>01</b><p><strong>See it before you pay.</strong> A free sample with your logo.</p></div><div><b>02</b><p><strong>Made in our own workshop.</strong> No outsourcing — quality and timing stay in our hands.</p></div><div><b>03</b><p><strong>Ready to hand over.</strong> Packed, labelled, GST invoice, on time.</p></div></div>
 <a class="btn b-line" href="/pages/our-story">Read our story →</a></div></div></section></div>"""
 
 cta=f"""<div class="ih"><section class="ih-sec ih-cta"><div class="wrap"><span class="eb" style="color:var(--ink)">Free · No commitment</span><h2>Send us your logo.<br>Hold a free sample in days.</h2>
 <div style="display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap;margin-top:1.8rem"><a class="btn b-dark" href="{WA}">WhatsApp +91 91095 35267</a><a class="btn b-line" href="/pages/get-a-quote">Request a quote</a></div></div></section></div>"""
 
+KLIQ="""[{%- for product in collections['ready-gift-packages'].products -%}{%- assign pp = product.price_min -%}{%- for v in product.variants -%}{%- if v.title contains 'Bulk' -%}{%- assign pp = v.price | divided_by: 50 -%}{%- break -%}{%- endif -%}{%- endfor -%}{%- assign nm = product.title | split: ' (' | first | split: ' — ' | first -%}{%- assign inc = product.description | split: '</p>' | first | strip_html | remove: "What's inside:" | strip | truncatewords: 14 -%}{n:{{ nm | json }},p:{{ pp | divided_by: 100 }},u:{{ product.url | json }},d:{{ inc | json }}}{%- unless forloop.last -%},{%- endunless -%}{%- endfor -%}]"""
+KPRE='[{n:"Essential Gift Set",p:249,u:"#",d:"Engraved pen and keychain in a black gift box"},{n:"Executive Gift Set",p:549,u:"#",d:"Flask, pen and keychain in a black gift box"}]'
+planner=planner.replace('__K__',KPRE if PREVIEW else KLIQ)
 order=[("hero",hero),("packages",packages),("demo",demo),("products",products),("steps",steps),("planner",planner),("who",who),("story",story),("cta",cta)]
 if PREVIEW:
     open(sys.argv[2],"w").write('<!doctype html><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><body style="margin:0">'+"".join(h for _,h in order)+'<script>document.querySelectorAll(".reveal,.ih-st").forEach(e=>e.classList.add("in"))</script>')

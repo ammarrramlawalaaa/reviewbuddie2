@@ -46,7 +46,9 @@ main ol li,main ul li{margin-bottom:.35rem}
 .ih-foot .logo{font-family:Fraunces,Georgia,serif;font-size:1.9rem;color:#fff;font-weight:600;letter-spacing:-.02em}
 .ih-foot .tl{color:#9a9a9a;margin:.6rem 0 1.4rem;max-width:320px;font-size:.93rem;line-height:1.6}
 </style>"""
-GLOBAL = BASE + EXTRA
+GLOBAL = BASE + EXTRA + """<script>(function(){function pub(n,d){try{if(window.Shopify&&Shopify.analytics&&Shopify.analytics.publish){Shopify.analytics.publish(n,d)}}catch(e){}}
+document.addEventListener('click',function(e){var a=e.target&&e.target.closest?e.target.closest('a[href*="wa.me"]'):null;if(a){pub('whatsapp_click',{page:location.pathname,label:(a.textContent||'').trim().slice(0,60)})}},true);
+document.addEventListener('submit',function(e){var f=e.target;if(f&&f.tagName==='FORM'&&/\/contact/.test(f.getAttribute('action')||'')){pub('quote_form_submit',{page:location.pathname})}},true);})();</script>"""
 
 # ---- header group: add global style section
 hg=json.load(open(SP+"/../../../../../home/user/reviewbuddie2/imprint-house/theme/header-group.json")) if False else json.load(open("/home/user/reviewbuddie2/imprint-house/theme/header-group.json"))
@@ -65,9 +67,9 @@ col["order"]=["ih_banner","main"]
 json.dump(col,open(OUT+"/collection.json","w"),ensure_ascii=False,separators=(',',':'))
 
 # ---- page hero
-SUB={"how-it-works":"From your logo to a finished gift — with zero risk.","who-we-work-with":"Gift ideas built for your kind of business.","our-story":"A family workshop in Ajmer, engraving gifts that last.","get-a-quote":"Send your logo. Get a free mockup within 24 hours.","faq":"Everything you need to know before you order.","contact":"We usually reply on WhatsApp within a few hours."}
+SUB={"how-it-works":"From your logo to a finished gift — with zero risk.","who-we-work-with":"Gift ideas built for your kind of business.","our-story":"A family-run workshop, engraving gifts that last.","get-a-quote":"Send your logo. Get a free mockup within 24 hours.","faq":"Everything you need to know before you order.","contact":"We usually reply on WhatsApp within a few hours."}
 case="".join(f"{{% when '{k}' %}}{v}" for k,v in SUB.items())
-ph=f"""<div class="ih"><section class="ih-band"><div class="wrap"><span class="eb">The Imprint House</span><h1>{{{{ page.title }}}}</h1><p>{{% case page.handle %}}{case}{{% else %}}Laser-engraved corporate gifts from Ajmer.{{% endcase %}}</p></div></section></div>"""
+ph=f"""<div class="ih"><section class="ih-band"><div class="wrap"><span class="eb">The Imprint House</span><h1>{{{{ page.title }}}}</h1><p>{{% case page.handle %}}{case}{{% else %}}Laser-engraved corporate gifts, delivered across India.{{% endcase %}}</p></div></section></div>"""
 pg=load(SP+"/orig_templates_page.json")
 m=pg["sections"]["main"]; m["blocks"].pop("heading"); m["block_order"]=["page-content"]; m["settings"]["padding-block-start"]=56
 pg["sections"]={"ih_hero":{"type":"custom-liquid","settings":{"custom_liquid":ph,"background_color":"","section_width":"full-width","padding-block-start":0,"padding-block-end":0}},"main":m}
@@ -82,8 +84,8 @@ pe=f"""{{% if template.name == 'product' %}}<div class="ih"><section style="padd
 <div class="ih-ctabox"><h3>Need 500+ pieces, names on each piece, or a different item?</h3><div style="display:flex;gap:.7rem;flex-wrap:wrap"><a class="btn b-brass" href="{WA}">Ask on WhatsApp →</a><a class="btn b-ghost" href="/pages/get-a-quote">Request a quote</a></div></div>
 </div></section></div>{{% endif %}}"""
 ft=f"""<div class="ih"><footer class="ih-foot"><div class="wrap"><div class="cols">
-<div><div class="logo">The Imprint House</div><p class="tl">Branded gifts, engraved in-house and delivered ready to give. A family workshop in Ajmer, Rajasthan.</p><a class="btn b-brass" style="display:inline-flex;color:#16181a" href="{WA}">WhatsApp +91 91095 35267</a></div>
-<div><h5>Shop</h5><a href="/collections/ready-gift-packages">Gift packages</a><a href="/collections/keychains">Keychains</a><a href="/collections/pens">Pens</a><a href="/collections/bottles-drinkware">Bottles & drinkware</a><a href="/collections/desk-accessories">Desk accessories</a></div>
+<div><img src="{{ 'imprint-house-logo-light.png' | file_url: width: 400 }}" alt="The Imprint House — Engraved Corporate Gifts" width="180" height="122" loading="lazy" style="height:auto;width:180px;max-width:60%"><p class="tl">Branded gifts, engraved in-house and delivered ready to give — across India.</p><a class="btn b-brass" style="display:inline-flex;color:#16181a" href="{WA}">WhatsApp +91 91095 35267</a></div>
+<div><h5>Shop</h5><a href="/collections/ready-gift-packages">Gift packages</a><a href="/collections/keychains">Keychains</a><a href="/collections/pens">Pens</a><a href="/collections/bottles-drinkware">Bottles & mugs</a></div>
 <div><h5>Company</h5><a href="/pages/how-it-works">How it works</a><a href="/pages/who-we-work-with">Who we work with</a><a href="/pages/our-story">Our story</a><a href="/pages/faq">FAQ</a></div>
 <div><h5>Get started</h5><a href="/pages/get-a-quote">Get a free sample</a><a href="/pages/get-a-quote">Request a quote</a><p style="color:#9a9a9a;font-size:.88rem;line-height:1.6;margin-top:.8rem">Minimum order 50 pieces.<br>All prices include GST.</p></div>
 </div></div></footer></div>"""
