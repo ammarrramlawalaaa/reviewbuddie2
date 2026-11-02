@@ -23,7 +23,7 @@ Settings → **Policies**. Replace the auto-generated text with the versions at 
 ## 4. Homepage Google title and description (2 min)
 Online Store → **Preferences**
 - **Homepage title:** `The Imprint House | Engraved Corporate Gifts with Your Logo`
-- **Meta description:** `Laser-engraved pens, keychains, bottles and gift sets with your logo. Free sample, mockup in 24 hrs, min 50 pieces, GST invoice, delivered across India.`
+- **Meta description:** `Laser-engraved pens, keychains, bottles and gift sets with your logo. Preview it in 3D, free digital mockup in 24 hrs, min 50 pieces, GST invoice, delivered across India.`
 - **Social sharing image:** upload `product-photos/pen-keychain-set-black-desk.jpg`. This is the preview that appears when your link is shared on WhatsApp.
 
 ## 5. Show ₹ instead of "Rs." (1 min)
@@ -75,9 +75,9 @@ The site already sends these two events. Every WhatsApp button click and every q
 
 ## Ad advice for tomorrow (short version)
 - **Run Click-to-WhatsApp ads first** (Engagement → Messaging apps → WhatsApp). For a quote-led B2B business, a WhatsApp chat *is* the lead, so you don't depend on the website converting on day one. The website's job is to make people trust you when they check you out.
-- Creative: the engraving close-ups and the gift box shots. Hook ideas: "Your logo, cut into metal — free sample first", "Staff gifts from ₹249 per person, GST included".
+- Creative: the engraving close-ups and the gift box shots. Hook ideas: "Your logo, cut into metal — see it in 3D first", "Staff gifts from ₹249 per person, GST included".
 - Audience: business owners / HR / admin managers in your target cities; ages 25–55. Start with a small daily budget and change one thing at a time.
-- Send website-traffic ads to **/pages/get-a-quote** or **/collections/ready-gift-packages**, not the homepage.
+- Send website-traffic ads to **/pages/3d-designer** (people upload their logo and send you the design on WhatsApp) or **/collections/ready-gift-packages**, not the homepage.
 
 ---
 
