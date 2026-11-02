@@ -1,8 +1,8 @@
 import json, sys, re
 PREVIEW = len(sys.argv)>1 and sys.argv[1]=="preview"
 WA="https://wa.me/919109535267?text=Hi%2C%20I%27d%20like%20a%20free%20sample%20with%20my%20logo"
-HERO_IMG = "hero.jpg" if PREVIEW else "{{ 'hero-engraved-gift-set.jpg' | file_url: width: 1400 }}"
-STORY_IMG = "story.jpg" if PREVIEW else "{{ 'story-engraving-closeup.jpg' | file_url: width: 1200 }}"
+HERO_IMG = "hero.jpg" if PREVIEW else "{{ 'hero-engraved-gift-set.jpg' | file_url }}"
+STORY_IMG = "story.jpg" if PREVIEW else "{{ 'story-engraving-closeup.jpg' | file_url }}"
 
 CSS = """<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
