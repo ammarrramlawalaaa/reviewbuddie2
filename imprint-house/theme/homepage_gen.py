@@ -1,7 +1,7 @@
 import json, sys, re
 PREVIEW = len(sys.argv)>1 and sys.argv[1]=="preview"
 WA="https://wa.me/919109535267?text=Hi%2C%20I%27d%20like%20a%20free%20sample%20with%20my%20logo"
-HERO_IMG = "hero.jpg" if PREVIEW else "{{ 'hero-engraved-gift-set.jpg' | file_url }}"
+HERO_IMG = "hero.jpg" if PREVIEW else "{{ 'hero-laser-engraving.jpg' | file_url }}"
 STORY_IMG = "story.jpg" if PREVIEW else "{{ 'story-engraving-closeup.jpg' | file_url }}"
 
 CSS = """<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -122,7 +122,7 @@ hero = CSS + f"""<div class="ih"><section class="ih-hero"><div class="wrap g">
 <p class="lead">Keychains, pens, bottles and ready gift kits — engraved in our own workshop, sampled free, and delivered ready to hand over. For shops, clinics, schools, dealerships and offices.</p>
 <div style="display:flex;gap:.8rem;flex-wrap:wrap"><a class="btn b-brass" href="/pages/get-a-quote">Get a free sample →</a><a class="btn b-ghost" href="{WA}">WhatsApp us</a></div>
 <div class="stats"><div><b>24 hrs</b><span>Free mockup</span></div><div><b>50+</b><span>Pieces per order</span></div><div><b>100%</b><span>In-house</span></div></div></div>
-<div class="reveal" style="position:relative"><div class="pic" style="background-image:url('{HERO_IMG}')"><div class="scan"></div></div></div>
+<div class="reveal" style="position:relative"><div class="pic" style="background-image:url('{HERO_IMG}')"><div class="scan"></div></div><div class="tag">YOUR LOGO</div></div>
 </div></section>
 <div class="ih-mq"><div class="t">{"".join('<span>'+x+'</span><i>✦</i>' for x in ["Car dealerships","Clinics","Schools","Hotels & resorts","Real estate","Startups","Wedding planners","Offices","Cafés"]*2)}</div></div></div>
 """
@@ -148,6 +148,46 @@ demo=f"""<div class="ih"><section class="ih-sec ih-demo"><div class="wrap g">
 function burn(){{b.classList.remove('go');void b.offsetWidth;b.classList.add('go')}}
 n.addEventListener('input',function(){{t.textContent=n.value||'Your Business';clearTimeout(tm);tm=setTimeout(burn,250)}});
 document.querySelectorAll('.ih-demo .chips button').forEach(function(x){{x.addEventListener('click',function(){{document.querySelectorAll('.ih-demo .chips button').forEach(function(y){{y.classList.remove('on')}});x.classList.add('on');o.className='ih-obj '+x.dataset.o;burn()}})}})}})();</script>"""
+
+ENGRAVE_JS = "./dist/ih-engrave.js" if PREVIEW else "{{ 'ih-engrave.js' | asset_url }}"
+DEMO_CSS = """<style>
+.ih-stage3d{position:relative;aspect-ratio:1/1;border-radius:24px;background:radial-gradient(circle at 50% 32%,#30353b,#0f1113 72%);overflow:hidden;touch-action:pan-y;cursor:grab;user-select:none}
+.ih-stage3d:active{cursor:grabbing}
+.ih-stage3d .ih3d-canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.ih-stage3d .ih3d-fb{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;transition:opacity .5s}
+.ih-stage3d.ih3d-ready .ih3d-fb{opacity:0;pointer-events:none}
+.ih3d-hint{position:absolute;bottom:14px;left:0;right:0;text-align:center;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.5);pointer-events:none}
+.ih3d-name{position:absolute;top:16px;left:18px;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.6);pointer-events:none}
+.ih3d-lbl{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:1.3rem 0 .6rem;font-weight:600}
+.ih3d-lbl span{color:var(--ink);text-transform:none;letter-spacing:0;font-weight:500;margin-left:.4rem}
+.ih3d-sw{display:flex;gap:.7rem;flex-wrap:wrap}
+.ih3d-sw button{width:36px;height:36px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 1px #cfc9bd;cursor:pointer;padding:0}
+.ih3d-sw button.on{box-shadow:0 0 0 2px var(--ink)}
+.ih-demo .chips{display:flex;gap:.5rem;flex-wrap:wrap}
+</style>"""
+WA_BASE = "https://wa.me/919109535267?text="
+demo = DEMO_CSS + """<div class="ih"><section class="ih-sec ih-demo"><div class="wrap g">
+<div><span class="eb">Try it live</span><h2>See your name engraved &mdash; in 3D.</h2><p style="color:var(--muted)">Type your business name, pick a product and a colour, then drag to turn it around. This is how fiber-laser engraving looks: crisp, permanent and part of the metal itself.</p>
+<input id="ihN" maxlength="32" placeholder="Type your business name" value="Your Business" aria-label="Your business name">
+<div class="ih3d-lbl">Product</div>
+<div class="chips" id="ihChips"><button type="button" data-p="keychain" class="on">Keychain</button><button type="button" data-p="pen">Metal pen</button><button type="button" data-p="roller">Roller pen</button><button type="button" data-p="flask">Flask</button><button type="button" data-p="mug">Coffee mug</button></div>
+<div class="ih3d-lbl">Colour<span id="ihCn">Black &amp; chrome</span></div>
+<div class="ih3d-sw" id="ihSw"></div>
+<div style="margin-top:1.8rem;display:flex;gap:.8rem;flex-wrap:wrap"><a id="ihCta" class="btn b-dark" href="__WA__">Get this as a free sample &rarr;</a></div></div>
+<div class="ih-stage3d" id="ih3d" aria-label="3D preview of your engraved product"><div class="ih3d-fb"><div id="ihO" class="ih-obj key"><span class="ih-txt" id="ihT">Your Business</span></div></div><span class="ih3d-name" id="ihPn">Keychain</span><span class="ih3d-hint">Drag to rotate</span></div>
+</div></section></div>
+<script>(function(){
+var C={keychain:{l:'Keychain',c:[['Black & chrome','#111']]},pen:{l:'Metal pen',c:[['Black','#151515'],['Silver','#c3c6ca'],['Blue','#1e3fae']]},roller:{l:'Roller pen',c:[['Teal & terracotta','linear-gradient(90deg,#2f5868 50%,#c2582f 50%)']]},flask:{l:'Flask',c:[['Black','#141414'],['Red','#b0151d']]},mug:{l:'Coffee mug',c:[['Navy','#1f2c55'],['Black','#141414']]}};
+var st={p:'keychain',c:0,t:'Your Business'},api=null,stage=document.getElementById('ih3d'),inp=document.getElementById('ihN'),sw=document.getElementById('ihSw'),cta=document.getElementById('ihCta'),tm;
+function upd(){var P=C[st.p],col=P.c[st.c][0];document.getElementById('ihCn').textContent=col;document.getElementById('ihPn').textContent=P.l;document.getElementById('ihT').textContent=st.t;
+cta.href='__WABASE__'+encodeURIComponent('Hi, I’d like a free sample: '+P.l+' ('+col+') engraved with "'+st.t+'"');}
+function swatches(){var P=C[st.p];sw.innerHTML='';P.c.forEach(function(x,i){var b=document.createElement('button');b.type='button';b.title=x[0];b.setAttribute('aria-label',x[0]);b.style.background=x[1];if(i===st.c)b.className='on';b.onclick=function(){st.c=i;swatches();upd();api&&api.setColour(i)};sw.appendChild(b)});}
+inp.addEventListener('input',function(){st.t=inp.value.trim()||'Your Business';upd();clearTimeout(tm);tm=setTimeout(function(){api&&api.setText(st.t)},250)});
+document.querySelectorAll('#ihChips button').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('#ihChips button').forEach(function(y){y.classList.remove('on')});b.classList.add('on');st.p=b.dataset.p;st.c=0;swatches();upd();api&&api.setProduct(st.p)})});
+swatches();upd();
+function load(){if(!window.WebGLRenderingContext)return;import('__JS__').then(function(m){api=m.mount(stage,{text:st.t});if(api){if(st.p!=='keychain')api.setProduct(st.p);if(st.c)api.setColour(st.c);api.setText(st.t)}}).catch(function(){})}
+if('IntersectionObserver' in window){var io=new IntersectionObserver(function(e){if(e[0].isIntersecting){io.disconnect();load()}},{rootMargin:'400px'});io.observe(stage)}else load();
+})();</script>""".replace("__WA__", WA_BASE + "Hi%2C%20I%27d%20like%20a%20free%20sample%20with%20my%20logo").replace("__WABASE__", WA_BASE).replace("__JS__", ENGRAVE_JS)
 
 if PREVIEW:
     pr=[("Classic Metal Keychain","45"),("Car Key Tag — Number Plate Keychain","65"),("Metal Ball Pen","80"),("Leather & Metal Keychain","95"),("Metal Visiting Card Holder","150"),("Premium Metal Pen in Gift Box","180"),("Insulated Steel Tumbler","320"),("Stainless Steel Bottle — 750 ml","350")]
@@ -190,7 +230,7 @@ cta=f"""<div class="ih"><section class="ih-sec ih-cta"><div class="wrap"><span c
 KLIQ="""[{%- for product in collections['ready-gift-packages'].products -%}{%- assign pp = product.price_min -%}{%- for v in product.variants -%}{%- if v.title contains 'Bulk' -%}{%- assign pp = v.price | divided_by: 50 -%}{%- break -%}{%- endif -%}{%- endfor -%}{%- assign nm = product.title | split: ' (' | first | split: ' — ' | first -%}{%- assign inc = product.description | split: '</p>' | first | strip_html | remove: "What's inside:" | strip | truncatewords: 14 -%}{n:{{ nm | json }},p:{{ pp | divided_by: 100 }},u:{{ product.url | json }},d:{{ inc | json }}}{%- unless forloop.last -%},{%- endunless -%}{%- endfor -%}]"""
 KPRE='[{n:"Essential Gift Set",p:249,u:"#",d:"Engraved pen and keychain in a black gift box"},{n:"Executive Gift Set",p:549,u:"#",d:"Flask, pen and keychain in a black gift box"}]'
 planner=planner.replace('__K__',KPRE if PREVIEW else KLIQ)
-order=[("hero",hero),("packages",packages),("demo",demo),("products",products),("steps",steps),("planner",planner),("who",who),("story",story),("cta",cta)]
+order=[("hero",hero),("packages",packages),("demo",demo),("products",products),("cta",cta)]
 if PREVIEW:
     open(sys.argv[2],"w").write('<!doctype html><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><body style="margin:0">'+"".join(h for _,h in order)+'<script>document.querySelectorAll(".reveal,.ih-st").forEach(e=>e.classList.add("in"))</script>')
 else:
