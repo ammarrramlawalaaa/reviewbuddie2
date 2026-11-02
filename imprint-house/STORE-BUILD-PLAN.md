@@ -69,3 +69,13 @@ FAQ assumptions to confirm: 5–10 working-day lead time, delivery across India,
   - templates/index.json = theme/index.json (hero, trust strip, packages, how it works, products, budget planner, who we work with, story, CTA)
   - sections/header-group.json = theme/header-group.json (3 announcements, floating WhatsApp button, country/language selectors off)
 - Owner must publish the copy (Online Store → Themes → Publish); API cannot publish themes.
+
+## Build log — 3 Nov 2026 (launch prep)
+- Location: no city on the site (family business, Mandsaur — owner asked not to mention it). All "Ajmer" removed.
+- Drafted (hidden, not deleted) products with only stock photos: car key tag, leather keychain, premium pen box, card holder, tumbler, Signature kit.
+- Live products (7): Essential set, Executive set, engraved keychain, black metal pen, roller pen, steel mug, steel bottle.
+- Shipping: "Standard delivery" ₹99 up to ₹1,999.99; "Free delivery" from ₹2,000.
+- Collections SEO set; "Bottles & Drinkware" renamed "Bottles & Mugs"; Desk Accessories removed from menu (collection empty).
+- Pages: Ajmer removed, Our story placeholder removed, FAQ adds free-sample, delivery cost, returns answers.
+- Policies: write access denied for API — texts in LAUNCH-CHECKLIST.md for owner to paste.
+- Launch theme = "Imprint House — with logo" (142635270205): logo, real hero/story photos, no scroll-hidden content, custom-set card, planner reads kits from store, ₹ on homepage, WhatsApp/quote click events (whatsapp_click, quote_form_submit via Shopify.analytics.publish).
