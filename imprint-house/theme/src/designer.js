@@ -706,7 +706,7 @@ export function init(cfg = {}) {
     $('ihdLogoControls').hidden = !S.logo; $('ihdLogoEmpty').hidden = !!S.logo; if (S.logo) drawLogoPreview();
     document.querySelectorAll('#ihdFonts button').forEach(b => b.classList.toggle('on', b.dataset.f === S.font));
     const info = (cfg.products || {})[S.product]; const pl = $('ihdPrice');
-    if (info && pl) { pl.innerHTML = info.note ? info.note : `From <b>${info.from}</b> per piece · min. 50 · <a href="${info.url}">View product</a>`; } else if (pl) pl.textContent = '';
+    if (info && pl) { pl.innerHTML = info.note ? info.note : `<b>${info.from}</b> per piece · MOQ ${info.moq || 50} · <a href="${info.url}">View product</a>`; } else if (pl) pl.textContent = '';
     $('ihdSideLabel').textContent = P.sides.length > 1 ? `Editing: ${P.sides[S.side]}` : P.sides[0];
   }
   function summary() {

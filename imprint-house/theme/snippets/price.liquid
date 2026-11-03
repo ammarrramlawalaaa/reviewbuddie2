@@ -91,6 +91,20 @@
       endif
     endif
   endfor
+  # Newer setup: the bulk variant IS the per-piece price ("Bulk order (min. 25 pcs)"); MOQ and free-shipping qty come from metafields
+  assign ih_mode = 'pack'
+  assign ih_moq = 50
+  assign ih_free = 0
+  if selected_variant.title contains 'min.'
+    assign ih_mode = 'unit'
+    assign ih_per = selected_variant.price | money_without_trailing_zeros | replace: 'Rs. ', '₹' | replace: 'Rs.', '₹'
+    assign ih_unit = 'piece'
+    if selected_variant.title contains 'sets'
+      assign ih_unit = 'set'
+    endif
+    assign ih_moq = product_resource.metafields.custom.moq.value | default: 50
+    assign ih_free = product_resource.metafields.custom.free_ship_qty.value | default: 0
+  endif
   assign ih_main = false
   if template.name == 'product' and product.handle == product_resource.handle
     assign ih_main = true
@@ -102,7 +116,11 @@
     {% comment %} Imprint House: per-piece price first; the 50-pack total and MOQ underneath {% endcomment %}
     {% if is_product_card %}
       <span class="price"><bdi>{{ ih_per }}</bdi></span>
-      <span class="ih-per">per {{ ih_unit }} · MOQ 50 · GST incl.</span>
+      <span class="ih-per">per {{ ih_unit }} · MOQ {{ ih_moq }} · GST incl.</span>
+    {% elsif ih_mode == 'unit' %}
+      <span class="price"><bdi>{{ ih_per }}</bdi> <small class="ih-unit">per {{ ih_unit }}</small></span>
+      <span class="ih-per">Minimum order (MOQ): {{ ih_moq }} {{ ih_unit }}s{% if ih_free > 0 %} · Free shipping on {{ ih_free }}+ {{ ih_unit }}s{% endif %} · GST included</span>
+      {%- if ih_main -%}<span class="ih-moq" data-moq="{{ ih_moq }}" hidden></span><span class="ih-moq-msg ih-per" hidden>Quantity set to the minimum order of {{ ih_moq }}.</span>{%- endif -%}
     {% else %}
       <span class="price"><bdi>{{ ih_per }}</bdi> <small class="ih-unit">per {{ ih_unit }}</small></span>
       <span class="ih-per">Minimum order (MOQ): 50 {{ ih_unit }}s · {{ price }} for 50 · GST included</span>
