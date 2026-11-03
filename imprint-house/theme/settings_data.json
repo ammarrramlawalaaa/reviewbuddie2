@@ -1,7 +1,7 @@
 {
  "current": {
-  "logo": "shopify://shop_images/imprint-house-logo-dark.png",
-  "logo_inverse": "shopify://shop_images/imprint-house-logo-light.png",
+  "logo": "shopify://shop_images/imprint-house-logo-light.png",
+  "logo_inverse": "shopify://shop_images/imprint-house-logo-dark.png",
   "favicon": "shopify://shop_images/imprint-house-favicon.png",
   "logo_height": 64,
   "logo_height_mobile": 46,

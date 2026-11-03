@@ -45,6 +45,14 @@ main ol li,main ul li{margin-bottom:.35rem}
 .ih-foot a{color:#cfcfcf;display:block;margin-bottom:.55rem;font-size:.93rem}.ih-foot a:hover{color:var(--brass2)}
 .ih-foot .logo{font-family:Fraunces,Georgia,serif;font-size:1.9rem;color:#fff;font-weight:600;letter-spacing:-.02em}
 .ih-foot .tl{color:#9a9a9a;margin:.6rem 0 1.4rem;max-width:320px;font-size:.93rem;line-height:1.6}
+/* header: charcoal + brass, matches the hero */
+.announcement-bar,.announcement-bar *{color:#16181a!important}
+.announcement-bar__slides{font-weight:500;letter-spacing:.02em}
+.menu-list__link-title{letter-spacing:.02em;font-weight:500;transition:color .2s}
+.menu-list .menu-list__list-item:hover .menu-list__link-title{color:#d9b98a}
+.menu-list__link[href="/pages/3d-designer"] .menu-list__link-title{background:#b8925a;color:#16181a!important;border-radius:999px;padding:.5rem 1rem;margin-inline:.25rem;font-weight:600}
+.menu-list__link[href="/pages/3d-designer"]:hover .menu-list__link-title{background:#d9b98a}
+.menu-list__submenu .mega-menu__link{color:#f3eadf}.menu-list__submenu .mega-menu__link:hover{color:#d9b98a}
 </style>"""
 GLOBAL = BASE + EXTRA + """<script>(function(){function pub(n,d){try{if(window.Shopify&&Shopify.analytics&&Shopify.analytics.publish){Shopify.analytics.publish(n,d)}}catch(e){}}
 document.addEventListener('click',function(e){var a=e.target&&e.target.closest?e.target.closest('a[href*="wa.me"]'):null;if(a){pub('whatsapp_click',{page:location.pathname,label:(a.textContent||'').trim().slice(0,60)})}},true);

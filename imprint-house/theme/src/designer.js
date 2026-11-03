@@ -3,7 +3,7 @@ import {
   WebGLRenderer, Scene, PerspectiveCamera, Group, Mesh, MeshStandardMaterial, MeshPhysicalMaterial, MeshBasicMaterial,
   Shape, Path, ExtrudeGeometry, CylinderGeometry, TorusGeometry, PlaneGeometry, BoxGeometry, LatheGeometry, TubeGeometry,
   CatmullRomCurve3, SphereGeometry, CircleGeometry, Vector2, Vector3, CanvasTexture, SRGBColorSpace, ACESFilmicToneMapping,
-  PMREMGenerator, DirectionalLight, BackSide, DoubleSide, Color, Box3
+  PMREMGenerator, DirectionalLight, BackSide, DoubleSide, Color, Box3, Float32BufferAttribute
 } from 'three';
 
 /* ================= configuration ================= */
@@ -16,7 +16,7 @@ const FONTS = {
 const SILVER = '#d7d9dc', DARK = '#2b2c2e';
 // engraving areas in model units (w = along the text direction)
 const PRODUCTS = {
-  keychain: { label: 'Keychain', sides: ['Front', 'Back'], area: { w: 2.29, h: 3.66 }, wrap: null,
+  keychain: { label: 'Keychain', sides: ['Front', 'Back'], area: { w: 2.42, h: 4.0 }, wrap: null,
     colours: [{ name: 'Black & chrome', swatch: '#111', bg: '#0d0d0e', engrave: SILVER }] },
   pen: { label: 'Metal pen', sides: ['Barrel'], area: { w: 4.4, h: 0.52 }, wrap: 'v',
     colours: [{ name: 'Black', swatch: '#151515', bg: '#161616', engrave: SILVER, body: 'black' },
@@ -61,36 +61,251 @@ function loadImage(file) {
     img.src = url;
   });
 }
-function makeMask(img, invert) {
-  const max = 1200; let w = img.naturalWidth || img.width || 600, h = img.naturalHeight || img.height || 600;
+/* Turns any upload (transparent PNG, flat-background JPG, phone photo of a logo,
+   WhatsApp-compressed image or a real photograph) into a clean single-tone engraving mask. */
+function otsu(vals) { return otsu2(vals).t; }
+function otsu2(vals) { // threshold + separability (0..1): high = clean two-tone image (logo), low = continuous tones (photo)
+  const hist = new Float64Array(256); let n = 0;
+  for (let i = 0; i < vals.length; i++) { hist[clamp(vals[i] | 0, 0, 255)]++; n++; }
+  let sum = 0, sq = 0; for (let i = 0; i < 256; i++) { sum += i * hist[i]; sq += i * i * hist[i]; }
+  const varT = n ? sq / n - (sum / n) * (sum / n) : 0;
+  let sumB = 0, wB = 0, best = 0, t = 128;
+  for (let i = 0; i < 256; i++) { wB += hist[i]; if (!wB) continue; const wF = n - wB; if (!wF) break; sumB += i * hist[i]; const mB = sumB / wB, mF = (sum - sumB) / wF, v = wB * wF * (mB - mF) * (mB - mF); if (v > best) { best = v; t = i; } }
+  return { t, eta: varT > 0 ? best / (n * n) / varT : 0 };
+}
+function despeckle(bin, w, h, minArea, killBorderFrames) {
+  const lab = new Int32Array(w * h); const stack = new Int32Array(w * h); let id = 0;
+  for (let p0 = 0; p0 < w * h; p0++) {
+    if (!bin[p0] || lab[p0]) continue;
+    id++; let sp = 0, area = 0, minX = w, minY = h, maxX = 0, maxY = 0, border = false; const pix = [];
+    stack[sp++] = p0; lab[p0] = id;
+    while (sp) {
+      const p = stack[--sp]; pix.push(p); area++; const x = p % w, y = (p / w) | 0;
+      if (x < minX) minX = x; if (x > maxX) maxX = x; if (y < minY) minY = y; if (y > maxY) maxY = y;
+      if (x === 0 || y === 0 || x === w - 1 || y === h - 1) border = true;
+      if (x > 0 && bin[p - 1] && !lab[p - 1]) { lab[p - 1] = id; stack[sp++] = p - 1; }
+      if (x < w - 1 && bin[p + 1] && !lab[p + 1]) { lab[p + 1] = id; stack[sp++] = p + 1; }
+      if (y > 0 && bin[p - w] && !lab[p - w]) { lab[p - w] = id; stack[sp++] = p - w; }
+      if (y < h - 1 && bin[p + w] && !lab[p + w]) { lab[p + w] = id; stack[sp++] = p + w; }
+    }
+    const frame = killBorderFrames && border && ((maxX - minX) > w * 0.6 || (maxY - minY) > h * 0.6);
+    if (area < minArea || frame) for (const p of pix) bin[p] = 0;
+  }
+  return bin;
+}
+function blurAlpha(a, w, h) { return boxMean(a, w, h, 1, null); } // soft, antialiased edges
+function boxMean(src, w, h, r, roi) { // mean over a (2r+1)² window; with roi, only roi pixels count
+  const W1 = w + 1, I = new Float64Array(W1 * (h + 1)), C = roi ? new Float64Array(W1 * (h + 1)) : null;
+  for (let y = 0; y < h; y++) { let s = 0, c = 0; for (let x = 0; x < w; x++) { const p = y * w + x, m = roi ? roi[p] : 1; s += src[p] * m; c += m; I[(y + 1) * W1 + x + 1] = I[y * W1 + x + 1] + s; if (C) C[(y + 1) * W1 + x + 1] = C[y * W1 + x + 1] + c; } }
+  const out = new Float32Array(w * h);
+  for (let y = 0; y < h; y++) {
+    const y0 = Math.max(0, y - r), y1 = Math.min(h, y + r + 1);
+    for (let x = 0; x < w; x++) {
+      const x0 = Math.max(0, x - r), x1 = Math.min(w, x + r + 1);
+      const s = I[y1 * W1 + x1] - I[y0 * W1 + x1] - I[y1 * W1 + x0] + I[y0 * W1 + x0];
+      const n = C ? C[y1 * W1 + x1] - C[y0 * W1 + x1] - C[y1 * W1 + x0] + C[y0 * W1 + x0] : (x1 - x0) * (y1 - y0);
+      out[y * w + x] = n > 0 ? s / n : 0;
+    }
+  }
+  return out;
+}
+function slideExt(src, w, h, r, isMax) { // separable sliding max/min (monotonic queue, O(N))
+  const tmp = new Float32Array(w * h), out = new Float32Array(w * h), q = new Int32Array(Math.max(w, h) + 1);
+  const pass = (inp, outp, len, count, stride, step) => {
+    for (let c = 0; c < count; c++) {
+      const base = c * stride; let qh = 0, qt = 0, next = 0;
+      for (let i = 0; i < len; i++) {
+        const hi = Math.min(len - 1, i + r);
+        while (next <= hi) { const v = inp[base + next * step]; while (qt > qh && (isMax ? inp[base + q[qt - 1] * step] <= v : inp[base + q[qt - 1] * step] >= v)) qt--; q[qt++] = next++; }
+        while (q[qh] < i - r) qh++;
+        outp[base + i * step] = inp[base + q[qh] * step];
+      }
+    }
+  };
+  pass(src, tmp, w, h, w, 1); pass(tmp, out, h, w, 1, w); return out;
+}
+/* A photo of a visiting card, letterhead or printout lying on a table/wall: find the sheet
+   (largest solid, convex, plain region that isn't the whole frame) so only what's printed on it is engraved. */
+function findSheet(D, L, w, h, thr) {
+  const N = w * h, lab = new Int32Array(N), stack = new Int32Array(N); let id = 0, best = 0, bestArea = 0;
+  for (let p0 = 0; p0 < N; p0++) {
+    if (D[p0] <= thr || lab[p0]) continue; id++; let sp = 0, area = 0; stack[sp++] = p0; lab[p0] = id;
+    while (sp) {
+      const p = stack[--sp]; area++; const x = p % w;
+      if (x > 0 && D[p - 1] > thr && !lab[p - 1]) { lab[p - 1] = id; stack[sp++] = p - 1; }
+      if (x < w - 1 && D[p + 1] > thr && !lab[p + 1]) { lab[p + 1] = id; stack[sp++] = p + 1; }
+      if (p >= w && D[p - w] > thr && !lab[p - w]) { lab[p - w] = id; stack[sp++] = p - w; }
+      if (p < N - w && D[p + w] > thr && !lab[p + w]) { lab[p + w] = id; stack[sp++] = p + w; }
+    }
+    if (area > bestArea) { bestArea = area; best = id; }
+  }
+  if (bestArea < N * 0.12) return null;
+  // fill holes (the print on the sheet): flood everything else from the image border
+  const outside = new Uint8Array(N); let sp = 0;
+  const seed = p => { if (!outside[p] && lab[p] !== best) { outside[p] = 1; stack[sp++] = p; } };
+  for (let x = 0; x < w; x++) { seed(x); seed((h - 1) * w + x); } for (let y = 0; y < h; y++) { seed(y * w); seed(y * w + w - 1); }
+  while (sp) { const p = stack[--sp], x = p % w; if (x > 0) seed(p - 1); if (x < w - 1) seed(p + 1); if (p >= w) seed(p - w); if (p < N - w) seed(p + w); }
+  const mask = new Uint8Array(N); let area = 0, edge = 0;
+  for (let p = 0; p < N; p++) if (!outside[p]) { mask[p] = 1; area++; }
+  if (area > N * 0.9) return null; // it is the whole frame, not a sheet on something
+  for (let x = 0; x < w; x++) edge += mask[x] + mask[(h - 1) * w + x]; for (let y = 0; y < h; y++) edge += mask[y * w] + mask[y * w + w - 1];
+  if (edge > (w + h) * 2 * 0.45) return null;
+  // convexity: area vs convex hull area (cards and paper are convex, even when cut off by the frame)
+  const pts = []; for (let y = 0; y < h; y++) { let a = -1, b = -1; for (let x = 0; x < w; x++) if (mask[y * w + x]) { if (a < 0) a = x; b = x; } if (a >= 0) { pts.push([a, y], [b + 1, y], [a, y + 1], [b + 1, y + 1]); } }
+  pts.sort((m, n) => m[0] - n[0] || m[1] - n[1]);
+  const cross = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]); const lo = [], up = [];
+  for (const p of pts) { while (lo.length >= 2 && cross(lo[lo.length - 2], lo[lo.length - 1], p) <= 0) lo.pop(); lo.push(p); }
+  for (let i = pts.length - 1; i >= 0; i--) { const p = pts[i]; while (up.length >= 2 && cross(up[up.length - 2], up[up.length - 1], p) <= 0) up.pop(); up.push(p); }
+  const hull = lo.slice(0, -1).concat(up.slice(0, -1)); let ha = 0; for (let i = 0; i < hull.length; i++) { const a = hull[i], b = hull[(i + 1) % hull.length]; ha += a[0] * b[1] - b[0] * a[1]; }
+  if (area / (Math.abs(ha) / 2) < 0.9) return null;
+  // rectangularity (cards/paper are rectangles; round badges are not) + tilt angle
+  let minA = Infinity, ang = 0, minA2 = Infinity, ang2 = 0;
+  const onFrame = (a, b) => (a[0] <= 0 && b[0] <= 0) || (a[1] <= 0 && b[1] <= 0) || (a[0] >= w && b[0] >= w) || (a[1] >= h && b[1] >= h);
+  for (let i = 0; i < hull.length; i++) {
+    const a = hull[i], b = hull[(i + 1) % hull.length], ex = b[0] - a[0], ey = b[1] - a[1], len = Math.hypot(ex, ey); if (len < 1e-6) continue;
+    const ux = ex / len, uy = ey / len; let a0 = Infinity, a1 = -Infinity, b0 = Infinity, b1 = -Infinity;
+    for (const q of hull) { const u = q[0] * ux + q[1] * uy, v = -q[0] * uy + q[1] * ux; if (u < a0) a0 = u; if (u > a1) a1 = u; if (v < b0) b0 = v; if (v > b1) b1 = v; }
+    const A = (a1 - a0) * (b1 - b0); if (A < minA) { minA = A; ang = Math.atan2(uy, ux); }
+    if (!onFrame(a, b) && A < minA2) { minA2 = A; ang2 = Math.atan2(uy, ux); } // ignore edges made by the photo's frame for the tilt
+  }
+  if (minA2 < Infinity) ang = ang2;
+  if (area / minA < 0.85) return null;
+  let tiltSigned = ((ang * 180 / Math.PI) % 90 + 90) % 90; if (tiltSigned > 45) tiltSigned -= 90; const tiltDeg = Math.abs(tiltSigned);
+  // shrink away from the sheet's edge (edge shadows, bevel, background bleeding in)
+  const k = Math.max(3, Math.round(Math.sqrt(area) * 0.035)), m = boxMean(mask, w, h, k, null), roi = new Uint8Array(N); let rn = 0;
+  for (let p = 0; p < N; p++) if (mask[p] && m[p] > 0.999) { roi[p] = 1; rn++; }
+  if (rn < N * 0.08) return null;
+  // must be a plain surface (mostly one tone), not a busy object
+  const s = []; for (let p = 0; p < N; p += 3) if (roi[p]) s.push(L[p]); s.sort((a, b) => a - b); const md = s[s.length >> 1]; let near = 0;
+  for (const v of s) if (Math.abs(v - md) < 28) near++;
+  if (near / s.length < 0.55) return null;
+  const grow = boxMean(mask, w, h, k * 2, null); let outside2 = 0;
+  for (let p = 0; p < N; p++) if (!grow[p] && D[p] > thr) outside2++;
+  if (outside2 > N * 0.02) return null;
+  return { roi, tiltDeg, tiltSigned };
+}
+/* dark ink on a light surface (or light print on a dark card): even out shadows and uneven light, then split ink from surface */
+function docInk(L, R, G, B, w, h, roi, invert) {
+  const N = w * h, s = [], cs = [];
+  for (let p = 0; p < N; p += 5) if (!roi || roi[p]) { s.push(L[p]); cs.push(Math.max(R[p], G[p], B[p]) - Math.min(R[p], G[p], B[p])); }
+  s.sort((a, b) => a - b); cs.sort((a, b) => a - b); const medL = s[s.length >> 1] || 128, surfCh = cs[cs.length >> 1] || 0;
+  let light = medL < 105; if (invert) light = !light;
+  const r = Math.max(8, Math.round(Math.min(w, h) / 8)), src = new Float32Array(N);
+  for (let p = 0; p < N; p++) src[p] = (!roi || roi[p]) ? L[p] : medL;
+  // blur first so camera noise doesn't bias the surface estimate, then take the local brightest (or darkest) surface
+  const bg = boxMean(slideExt(boxMean(src, w, h, 2, null), w, h, r, !light), w, h, r >> 1, null), ink = new Float32Array(N);
+  for (let p = 0; p < N; p++) {
+    if (roi && !roi[p]) continue;
+    const b = Math.max(1, bg[p]); let v = light ? (L[p] - b) / Math.max(40, 255 - b) : (b - L[p]) / Math.max(40, b);
+    const ch = (Math.max(R[p], G[p], B[p]) - Math.min(R[p], G[p], B[p]) - surfCh) / 255; // coloured print on a neutral sheet
+    ink[p] = clamp(Math.max(v, ch * 1.2), 0, 1);
+  }
+  return { ink, light };
+}
+function processLogo(img, opt = {}) {
+  const style = opt.style || 'auto', detail = opt.detail == null ? 0.5 : opt.detail, invert = !!opt.invert;
+  const max = 900; let w = img.naturalWidth || img.width || 600, h = img.naturalHeight || img.height || 600;
   const k = Math.min(1, max / Math.max(w, h)); w = Math.max(1, Math.round(w * k)); h = Math.max(1, Math.round(h * k));
   const c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d', { willReadFrequently: true });
   x.drawImage(img, 0, 0, w, h);
-  const d = x.getImageData(0, 0, w, h), px = d.data;
-  // transparency?
-  let transparent = 0; for (let i = 3; i < px.length; i += 16) if (px[i] < 200) transparent++;
-  const usesAlpha = transparent > px.length / 16 * 0.02;
-  // background colour from the border
-  let br = 0, bg = 0, bb = 0, n = 0;
-  const sample = (X, Y) => { const i = (Y * w + X) * 4; if (px[i + 3] > 200) { br += px[i]; bg += px[i + 1]; bb += px[i + 2]; n++; } };
-  for (let X = 0; X < w; X += 2) { sample(X, 0); sample(X, h - 1); }
-  for (let Y = 0; Y < h; Y += 2) { sample(0, Y); sample(w - 1, Y); }
-  if (n) { br /= n; bg /= n; bb /= n; } else { br = bg = bb = 255; }
-  let minX = w, minY = h, maxX = -1, maxY = -1;
-  for (let i = 0, p = 0; i < px.length; i += 4, p++) {
-    let a;
-    if (usesAlpha) a = px[i + 3] / 255;
-    else { const dist = Math.max(Math.abs(px[i] - br), Math.abs(px[i + 1] - bg), Math.abs(px[i + 2] - bb)); a = clamp((dist - 28) / 60, 0, 1); }
-    if (invert) a = (usesAlpha ? (px[i + 3] > 10 ? 1 - a : 0) : 1 - a);
-    px[i] = px[i + 1] = px[i + 2] = 255; px[i + 3] = Math.round(a * 255);
-    if (a > 0.15) { const X = p % w, Y = (p / w) | 0; if (X < minX) minX = X; if (X > maxX) maxX = X; if (Y < minY) minY = Y; if (Y > maxY) maxY = Y; }
+  const px = x.getImageData(0, 0, w, h).data, N = w * h;
+  // 1. analyse
+  let transp = 0; for (let i = 3; i < px.length; i += 4) if (px[i] < 200) transp++;
+  const usesAlpha = transp > N * 0.02;
+  const L = new Uint8ClampedArray(N), R = new Uint8ClampedArray(N), G = new Uint8ClampedArray(N), B = new Uint8ClampedArray(N);
+  for (let p = 0, i = 0; p < N; p++, i += 4) { const a = px[i + 3] / 255; R[p] = px[i] * a + 255 * (1 - a); G[p] = px[i + 1] * a + 255 * (1 - a); B[p] = px[i + 2] * a + 255 * (1 - a); L[p] = 0.299 * R[p] + 0.587 * G[p] + 0.114 * B[p]; }
+  const br = [], bgc = [], bb = [];
+  const take = (X, Y) => { const p = Y * w + X; br.push(R[p]); bgc.push(G[p]); bb.push(B[p]); };
+  for (let X = 0; X < w; X += 2) { take(X, 0); take(X, Math.min(1, h - 1)); take(X, h - 1); take(X, Math.max(0, h - 2)); }
+  for (let Y = 0; Y < h; Y += 2) { take(0, Y); take(Math.min(1, w - 1), Y); take(w - 1, Y); take(Math.max(0, w - 2), Y); }
+  const med = a => { const s = a.slice().sort((m, n) => m - n); return s[s.length >> 1]; };
+  const sd = a => { const m = a.reduce((u, v) => u + v, 0) / a.length; return Math.sqrt(a.reduce((u, v) => u + (v - m) * (v - m), 0) / a.length); };
+  const mr = med(br), mg = med(bgc), mb = med(bb), borderSD = (sd(br) + sd(bgc) + sd(bb)) / 3;
+  const D = new Uint8ClampedArray(N); let near = 0;
+  for (let p = 0; p < N; p++) { const d = Math.max(Math.abs(R[p] - mr), Math.abs(G[p] - mg), Math.abs(B[p] - mb)); D[p] = d; if (d < 30) near++; }
+  const bgFrac = near / N, flat = !usesAlpha && borderSD < 18 && bgFrac > 0.3;
+  // clean digital artwork has a perfectly even (usually white) background; phone photos never do
+  const digital = borderSD < 1.5 || ((Math.min(mr, mg, mb) >= 246 || Math.max(mr, mg, mb) <= 12) && borderSD < 8);
+  let roi = null, tilt = 0;
+  if (style !== 'photo' && !usesAlpha) {
+    const vals = []; for (let p = 0; p < N; p += 3) vals.push(D[p]); const sh = findSheet(D, L, w, h, Math.max(28, otsu(vals) * 0.8));
+    // a perfectly straight box on clean digital artwork is part of the logo, not a photographed card
+    if (sh && !(digital && sh.tiltDeg < 1.5)) { roi = sh.roi; tilt = sh.tiltDeg > 0.7 && sh.tiltDeg < 30 ? sh.tiltSigned : 0; }
   }
-  x.putImageData(d, 0, 0);
+  let mode = style === 'photo' ? 'photo' : usesAlpha ? 'alpha' : roi ? 'sheet' : flat ? 'flat' : 'adaptive';
+  let alpha = new Float32Array(N), stats = null;
+  // 2. build mask
+  if (mode === 'alpha') {
+    for (let p = 0; p < N; p++) alpha[p] = px[p * 4 + 3] / 255;
+    if (invert) for (let p = 0; p < N; p++) alpha[p] = alpha[p] > 0.04 ? 1 - alpha[p] : 0;
+  } else if (mode === 'flat') {
+    const vals = []; for (let p = 0; p < N; p += 3) vals.push(D[p]);
+    const T = Math.max(18, otsu(vals) * (1.35 - detail * 0.7));
+    for (let p = 0; p < N; p++) { const a = clamp((D[p] - T + 10) / 20, 0, 1); alpha[p] = invert ? 1 - a : a; }
+  } else if (mode === 'sheet' || mode === 'adaptive') {
+    const { ink } = docInk(L, R, G, B, w, h, roi, invert);
+    const vals = []; for (let p = 0; p < N; p += 2) if (!roi || roi[p]) vals.push(ink[p] * 255);
+    const o = otsu2(vals), T = Math.max(0.12, (o.t / 255) * (1.15 - detail * 0.6));
+    let bin = new Uint8Array(N), on = 0;
+    for (let p = 0; p < N; p++) if (ink[p] > T) bin[p] = 1;
+    bin = despeckle(bin, w, h, Math.max(6, N * 0.00003), !roi);
+    for (let p = 0; p < N; p++) on += bin[p];
+    const inkFrac = on / (vals.length * 2); stats = { eta: +o.eta.toFixed(2), inkFrac: +inkFrac.toFixed(2), borderSD: +borderSD.toFixed(1) };
+    // continuous tones everywhere → it's a real photograph, not a logo
+    if (style === 'auto' && mode === 'adaptive' && (inkFrac > 0.3 || o.eta < 0.78)) mode = 'photo';
+    else { const soft = blurAlpha(bin, w, h); for (let p = 0; p < N; p++) alpha[p] = soft[p] * clamp((ink[p] - T) / 0.08 + 0.75, 0, 1); }
+  }
+  if (mode === 'photo') {
+    // engraved-photo look: local contrast boost + auto levels + error-diffusion dithering, soft rounded edges
+    const Lf = Float32Array.from(L), m = boxMean(Lf, w, h, Math.max(6, Math.round(Math.min(w, h) / 12)), null);
+    for (let p = 0; p < N; p++) Lf[p] = Lf[p] + 0.9 * (Lf[p] - m[p]);
+    const sorted = Array.from(Lf.filter((_, i) => i % 4 === 0)).sort((a, b) => a - b);
+    const lo = sorted[Math.floor(sorted.length * 0.01)], hi = sorted[Math.floor(sorted.length * 0.99)];
+    const scale = Math.min(1, 520 / Math.max(w, h)), dw = Math.max(1, Math.round(w * scale)), dh = Math.max(1, Math.round(h * scale));
+    const gamma = 1.2 - detail * 0.5, g = new Float32Array(dw * dh);
+    for (let y = 0; y < dh; y++) for (let X = 0; X < dw; X++) {
+      const sx = Math.min(w - 1, Math.round(X / scale)), sy = Math.min(h - 1, Math.round(y / scale));
+      let v = clamp((Lf[sy * w + sx] - lo) / Math.max(1, hi - lo), 0, 1); v = Math.pow(v, gamma); g[y * dw + X] = invert ? 1 - v : v;
+    }
+    const out = new Float32Array(dw * dh);
+    for (let y = 0; y < dh; y++) for (let X = 0; X < dw; X++) {
+      const p = y * dw + X, o = g[p] > 0.5 ? 1 : 0, e = g[p] - o; out[p] = o;
+      if (X + 1 < dw) g[p + 1] += e * 7 / 16;
+      if (y + 1 < dh) { if (X > 0) g[p + dw - 1] += e * 3 / 16; g[p + dw] += e * 5 / 16; if (X + 1 < dw) g[p + dw + 1] += e / 16; }
+    }
+    // soft rounded-rectangle vignette so it never looks like a pasted rectangle
+    const rad = Math.min(dw, dh) * 0.12, fe = Math.min(dw, dh) * 0.08;
+    for (let y = 0; y < dh; y++) for (let X = 0; X < dw; X++) {
+      const qx = Math.max(rad - X, X - (dw - 1 - rad), 0), qy = Math.max(rad - y, y - (dh - 1 - rad), 0);
+      const dist = rad - Math.hypot(qx, qy), edge = Math.min(dist, X, y, dw - 1 - X, dh - 1 - y);
+      out[y * dw + X] *= clamp(edge / fe, 0, 1);
+    }
+    const pc = document.createElement('canvas'); pc.width = dw; pc.height = dh; const pxx = pc.getContext('2d'); const pd = pxx.createImageData(dw, dh);
+    for (let p = 0; p < dw * dh; p++) { pd.data[p * 4] = pd.data[p * 4 + 1] = pd.data[p * 4 + 2] = 255; pd.data[p * 4 + 3] = Math.round(out[p] * 255); }
+    pxx.putImageData(pd, 0, 0);
+    return { mask: pc, mode: 'photo', usesAlpha, flat, stats };
+  }
+  // 3. write mask + trim to content
+  const od = x.createImageData(w, h); let minX = w, minY = h, maxX = -1, maxY = -1;
+  for (let p = 0; p < N; p++) {
+    const a = alpha[p]; od.data[p * 4] = od.data[p * 4 + 1] = od.data[p * 4 + 2] = 255; od.data[p * 4 + 3] = Math.round(a * 255);
+    if (a > 0.2) { const X = p % w, Y = (p / w) | 0; if (X < minX) minX = X; if (X > maxX) maxX = X; if (Y < minY) minY = Y; if (Y > maxY) maxY = Y; }
+  }
   if (maxX < 0) return null;
-  const pad = 2; minX = Math.max(0, minX - pad); minY = Math.max(0, minY - pad); maxX = Math.min(w - 1, maxX + pad); maxY = Math.min(h - 1, maxY + pad);
+  x.putImageData(od, 0, 0);
+  let srcC = c;
+  if (tilt) { // straighten a tilted card / sheet, then find the content bounds again
+    const rad = -tilt * Math.PI / 180, cs = Math.abs(Math.cos(rad)), sn = Math.abs(Math.sin(rad));
+    const RW = Math.ceil(w * cs + h * sn), RH = Math.ceil(w * sn + h * cs), rc = document.createElement('canvas'); rc.width = RW; rc.height = RH;
+    const rx = rc.getContext('2d', { willReadFrequently: true }); rx.translate(RW / 2, RH / 2); rx.rotate(rad); rx.drawImage(c, -w / 2, -h / 2);
+    const ra = rx.getImageData(0, 0, RW, RH).data; minX = RW; minY = RH; maxX = -1; maxY = -1;
+    for (let Y = 0; Y < RH; Y++) for (let X = 0; X < RW; X++) if (ra[(Y * RW + X) * 4 + 3] > 50) { if (X < minX) minX = X; if (X > maxX) maxX = X; if (Y < minY) minY = Y; if (Y > maxY) maxY = Y; }
+    if (maxX < 0) return null; srcC = rc; w = RW; h = RH;
+  }
+  const pad = 3; minX = Math.max(0, minX - pad); minY = Math.max(0, minY - pad); maxX = Math.min(w - 1, maxX + pad); maxY = Math.min(h - 1, maxY + pad);
   const t = document.createElement('canvas'); t.width = maxX - minX + 1; t.height = maxY - minY + 1;
-  t.getContext('2d').drawImage(c, minX, minY, t.width, t.height, 0, 0, t.width, t.height);
-  return t;
+  t.getContext('2d').drawImage(srcC, minX, minY, t.width, t.height, 0, 0, t.width, t.height);
+  return { mask: t, mode, usesAlpha, flat, stats: stats || { borderSD: +borderSD.toFixed(1) } };
 }
 
 /* ================= artwork rendering ================= */
@@ -135,9 +350,10 @@ function drawArtwork(ctx, W, H, d, logo, fontKey) {
 
 /* ================= 3D: materials, lighting ================= */
 const MAT = {
-  chrome: () => new MeshStandardMaterial({ color: 0xeef0f3, metalness: 1, roughness: 0.07 }),
+  chrome: () => new MeshStandardMaterial({ color: 0xf2f3f5, metalness: 1, roughness: 0.1 }),
+  polished: () => new MeshStandardMaterial({ color: 0xf6f7f9, metalness: 1, roughness: 0.06, envMapIntensity: 1.4 }),
   steel: () => new MeshStandardMaterial({ color: 0xc9ccd0, metalness: 1, roughness: 0.28 }),
-  enamel: () => new MeshPhysicalMaterial({ color: 0x0b0b0c, metalness: 0.15, roughness: 0.16, clearcoat: 1, clearcoatRoughness: 0.06 }),
+  enamel: () => new MeshPhysicalMaterial({ color: 0x050506, metalness: 0, roughness: 0.25, clearcoat: 1, clearcoatRoughness: 0.04, envMapIntensity: 0.6 }),
   coat: (c, r = 0.55, m = 0.25) => new MeshStandardMaterial({ color: c, metalness: m, roughness: r }),
   anodised: (c) => new MeshPhysicalMaterial({ color: c, metalness: 0.75, roughness: 0.3, clearcoat: 0.6, clearcoatRoughness: 0.2 }),
 };
@@ -146,17 +362,31 @@ const BODY = {
   red: () => MAT.anodised(0xa3121b), navy: () => MAT.coat(0x1f2c55, 0.62, 0.2), flaskBlack: () => MAT.coat(0x121314, 0.5, 0.35), mugBlack: () => MAT.coat(0x151515, 0.62, 0.2),
 };
 function studioEnvironment(renderer) {
+  // bright product-photography studio: graded dome + large softboxes, so chrome, lids and rims read silver, not black
   const s = new Scene();
-  s.add(new Mesh(new BoxGeometry(24, 16, 24), new MeshBasicMaterial({ color: 0x15171a, side: BackSide })));
+  const dome = new SphereGeometry(30, 48, 24), pos = dome.attributes.position, col = [];
+  for (let i = 0; i < pos.count; i++) {
+    const t = pos.getY(i) / 30; // -1 bottom .. 1 top
+    const zf = pos.getZ(i) / 30; // +1 = behind the camera: keep that dark so flat glossy faces read black, like a real studio
+    const v = (t > 0 ? 0.40 + 0.50 * t : 0.40 + 0.30 * t) * (1 - 0.6 * Math.max(0, zf) * (1 - Math.max(0, t)));
+    col.push(v, v, v * 1.02);
+  }
+  dome.setAttribute('color', new Float32BufferAttribute(col, 3));
+  s.add(new Mesh(dome, new MeshBasicMaterial({ vertexColors: true, side: BackSide })));
   const panel = (w, h, hex, k, x, y, z) => { const m = new Mesh(new PlaneGeometry(w, h), new MeshBasicMaterial({ color: new Color(hex).multiplyScalar(k), side: DoubleSide })); m.position.set(x, y, z); m.lookAt(0, 0, 0); s.add(m); };
-  panel(10, 3.5, 0xffffff, 4.0, 0, 7.5, 2); panel(3.5, 10, 0xffffff, 2.6, -10, 1, 4); panel(3.5, 10, 0xffe7c4, 2.0, 10, 0.5, -1);
-  panel(12, 2.5, 0xffffff, 0.9, 0, -2, 11); panel(6, 6, 0xffffff, 0.8, 0, 2, -11);
-  const pm = new PMREMGenerator(renderer); const tex = pm.fromScene(s, 0.03).texture; pm.dispose(); return tex;
+  panel(16, 8, 0xffffff, 5.0, 0, 12, 1);       // big overhead softbox
+  panel(5, 16, 0xffffff, 3.6, -13, 2, 5);      // left strip
+  panel(5, 16, 0xfff0dc, 3.0, 13, 1, -2);      // right strip, warm
+  panel(18, 2.4, 0xffffff, 1.7, 0, 7.5, 12);   // front strip above the camera
+  panel(18, 1.6, 0xffffff, 0.5, 0, -5, 12.5);  // front strip below the camera
+  panel(10, 10, 0xffffff, 2.2, 0, 4, -14);     // back rim
+  panel(14, 3, 0xffffff, 0.9, 0, -6, 9);       // low bounce card
+  const pm = new PMREMGenerator(renderer); const tex = pm.fromScene(s, 0.02).texture; pm.dispose(); return tex;
 }
 
 /* ================= 3D: models ================= */
-function roundedRect(w, h, r, hole = false) {
-  const s = hole ? new Path() : new Shape(); const x = -w / 2, y = -h / 2;
+function roundedRect(w, h, r, hole = false, cx = 0, cy = 0) {
+  const s = hole ? new Path() : new Shape(); const x = cx - w / 2, y = cy - h / 2;
   s.moveTo(x + r, y); s.lineTo(x + w - r, y); s.absarc(x + w - r, y + r, r, -Math.PI / 2, 0, false);
   s.lineTo(x + w, y + h - r); s.absarc(x + w - r, y + h - r, r, 0, Math.PI / 2, false);
   s.lineTo(x + r, y + h); s.absarc(x + r, y + h - r, r, Math.PI / 2, Math.PI, false);
@@ -166,20 +396,38 @@ const cyl = (rt, rb, h, mat, y, seg = 64) => { const m = new Mesh(new CylinderGe
 const wrap = (r, h, theta, y, mat) => { const m = new Mesh(new CylinderGeometry(r, r, h, 64, 1, true, -theta / 2, theta), mat); m.position.y = y; return m; };
 
 function buildKeychain(mats) {
-  const g = new Group(); const W = 3.0, H = 4.6, R = 0.62, inset = 0.17, chrome = MAT.chrome();
-  const fs = roundedRect(W, H, R); fs.holes.push(roundedRect(W - inset * 2, H - inset * 2, R - inset * 0.8, true));
-  const frame = new Mesh(new ExtrudeGeometry(fs, { depth: 0.3, bevelEnabled: true, bevelThickness: 0.06, bevelSize: 0.05, bevelSegments: 4, curveSegments: 32 }), chrome);
-  frame.position.z = -0.15; g.add(frame);
-  const fw = W - inset * 2, fh = H - inset * 2;
-  const face = new Mesh(new ExtrudeGeometry(roundedRect(fw, fh, R - inset * 0.8), { depth: 0.24, bevelEnabled: false, curveSegments: 32 }), MAT.enamel());
-  face.position.z = -0.12; g.add(face);
-  const a = PRODUCTS.keychain.area;
-  const front = new Mesh(new PlaneGeometry(a.w, a.h), mats[0]); front.position.z = 0.122; g.add(front);
-  const back = new Mesh(new PlaneGeometry(a.w, a.h), mats[1]); back.position.z = -0.122; back.rotation.y = Math.PI; g.add(back);
-  const block = new Mesh(new BoxGeometry(0.62, 0.42, 0.34), chrome); block.position.set(0, H / 2 + 0.08, 0); g.add(block);
-  const link = new Mesh(new TorusGeometry(0.36, 0.085, 20, 48), chrome); link.scale.set(1, 1.75, 1); link.position.set(0, H / 2 + 0.78, 0); g.add(link);
-  const ring = new Mesh(new TorusGeometry(1.25, 0.1, 24, 120), chrome); ring.position.set(0, H / 2 + 2.55, 0); ring.rotation.y = 0.35; g.add(ring);
-  return { group: g, base: { x: -0.05, y: 0, z: 0 }, pitch: 0.05, fit: 1.12, sideYaw: [0, Math.PI] };
+  // modelled on the real tag: tall rounded rectangle with a rounded chrome bezel, glossy black face,
+  // a chrome oval bail at the top centre (overlapping the bezel) and a large flat split ring
+  const g = new Group(); const chrome = MAT.polished();
+  const W = 3.0, H = 5.1, R = 0.52, bez = 0.13, D = 0.28, top = H / 2;
+  const fs = roundedRect(W, H, R); fs.holes.push(roundedRect(W - bez * 2, H - bez * 2, R - bez * 0.75, true));
+  // generous bevel = a rounded (half-round) bezel profile that catches highlights like polished metal
+  const frame = new Mesh(new ExtrudeGeometry(fs, { depth: D - 0.1, bevelEnabled: true, bevelThickness: 0.06, bevelSize: 0.055, bevelSegments: 7, curveSegments: 48 }), chrome);
+  frame.position.z = -(D - 0.1) / 2; g.add(frame);
+  const face = new Mesh(new ExtrudeGeometry(roundedRect(W - bez * 2 + 0.02, H - bez * 2 + 0.02, R - bez * 0.75), { depth: D - 0.08, bevelEnabled: false, curveSegments: 48 }), MAT.enamel());
+  face.position.z = -(D - 0.08) / 2; g.add(face);
+  // engraving surfaces (front + back)
+  const a = PRODUCTS.keychain.area, ey = -0.15, ez = (D - 0.08) / 2 + 0.002;
+  const front = new Mesh(new PlaneGeometry(a.w, a.h), mats[0]); front.position.set(0, ey, ez); g.add(front);
+  const back = new Mesh(new PlaneGeometry(a.w, a.h), mats[1]); back.position.set(0, ey, -ez); back.rotation.y = Math.PI; g.add(back);
+  // oval bail: a solid chrome stadium plate with a stadium slot; its lower end overlaps the top of the tag
+  const bw = 0.74, bh = 1.86, bc = top + 1.3 - bh / 2;
+  const bail = roundedRect(bw, bh, bw / 2 - 0.001, false, 0, 0); bail.holes.push(roundedRect(0.4, bh - 0.36, 0.2 - 0.001, true, 0, 0));
+  const bailM = new Mesh(new ExtrudeGeometry(bail, { depth: 0.16, bevelEnabled: true, bevelThickness: 0.06, bevelSize: 0.05, bevelSegments: 6, curveSegments: 32 }), chrome);
+  bailM.position.set(0, bc, -0.08); g.add(bailM);
+  // the tag's stem inside the bail's lower slot
+  const stem = new Mesh(new CylinderGeometry(0.09, 0.09, 0.42, 24), chrome); stem.rotation.z = Math.PI / 2; stem.position.set(0, top + 0.05, 0); g.add(stem);
+  const neck = new Mesh(new BoxGeometry(0.22, 0.3, 0.18), chrome); neck.position.set(0, top - 0.05, 0); g.add(neck);
+  // large flat split ring (two coils) through the top of the bail
+  const rOut = 1.8, rIn = 1.6, ringY = top + 1.3 - 0.42 + rOut - 0.1;
+  const ringShape = new Shape(); ringShape.absarc(0, 0, rOut, 0, Math.PI * 2, false);
+  const hole = new Path(); hole.absarc(0, 0, rIn, 0, Math.PI * 2, true); ringShape.holes.push(hole);
+  const ringGeo = new ExtrudeGeometry(ringShape, { depth: 0.05, bevelEnabled: true, bevelThickness: 0.025, bevelSize: 0.025, bevelSegments: 4, curveSegments: 140 });
+  const ring = new Group();
+  const c1 = new Mesh(ringGeo, chrome); c1.position.z = -0.085; ring.add(c1);
+  const c2 = new Mesh(ringGeo, chrome); c2.position.z = 0.015; ring.add(c2);
+  ring.position.set(0, ringY, -0.04); ring.rotation.y = 0.1; g.add(ring);
+  return { group: g, base: { x: -0.04, y: 0, z: 0 }, pitch: 0.05, fit: 1.08, sideYaw: [0, Math.PI] };
 }
 function buildPen(mats, colour) {
   const g = new Group(); const body = BODY[colour.body || 'black'](), chrome = MAT.chrome();
@@ -280,7 +528,7 @@ export function init(cfg = {}) {
   const stage = $('ihdStage'), ed = $('ihdEditor');
   if (!stage || !ed) return;
   const S = {
-    product: 'keychain', colour: 0, side: 0, font: 'serif', logo: null, logoImg: null, invert: false, qty: 100,
+    product: 'keychain', colour: 0, side: 0, font: 'serif', logo: null, logoImg: null, invert: false, qty: 100, logoStyle: 'auto', detail: 0.5, logoMode: '',
     designs: {}, // key product:side -> layout + text
   };
   const key = (p = S.product, s = S.side) => p + ':' + s;
@@ -297,7 +545,7 @@ export function init(cfg = {}) {
     renderer = new WebGLRenderer({ canvas: cv, antialias: true, alpha: true, preserveDrawingBuffer: false });
     stage.appendChild(cv);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-    renderer.toneMapping = ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05; renderer.outputColorSpace = SRGBColorSpace;
+    renderer.toneMapping = ACESFilmicToneMapping; renderer.toneMappingExposure = 1.0; renderer.outputColorSpace = SRGBColorSpace;
     scene = new Scene(); scene.environment = studioEnvironment(renderer);
     const k1 = new DirectionalLight(0xffffff, 1.4); k1.position.set(4, 6, 8); scene.add(k1);
     const k2 = new DirectionalLight(0xffd9a8, 0.8); k2.position.set(-6, 3, -5); scene.add(k2);
@@ -433,7 +681,7 @@ export function init(cfg = {}) {
     $('ihdFlip').hidden = P.sides.length < 2;
     $('ihdText').value = d.text; $('ihdTextSize').value = Math.round(d.textSize * 100);
     $('ihdLogoSize').value = Math.round(d.logoSize * 100); $('ihdLogoOn').checked = !!d.logoOn;
-    $('ihdLogoControls').hidden = !S.logo; $('ihdLogoEmpty').hidden = !!S.logo;
+    $('ihdLogoControls').hidden = !S.logo; $('ihdLogoEmpty').hidden = !!S.logo; if (S.logo) drawLogoPreview();
     document.querySelectorAll('#ihdFonts button').forEach(b => b.classList.toggle('on', b.dataset.f === S.font));
     const info = (cfg.products || {})[S.product]; const pl = $('ihdPrice');
     if (info && pl) { pl.innerHTML = info.note ? info.note : `From <b>${info.from}</b> per piece · min. 50 · <a href="${info.url}">View product</a>`; } else if (pl) pl.textContent = '';
@@ -461,7 +709,27 @@ export function init(cfg = {}) {
   $('ihdTextSize').addEventListener('input', e => { design().textSize = e.target.value / 100; design().touched = true; sel = 'text'; changed(false); });
   $('ihdLogoSize').addEventListener('input', e => { design().logoSize = e.target.value / 100; design().touched = true; sel = 'logo'; changed(false); });
   $('ihdLogoOn').addEventListener('change', e => { design().logoOn = e.target.checked; sel = 'logo'; changed(true); });
-  $('ihdInvert').addEventListener('change', e => { S.invert = e.target.checked; if (S.logoImg) { S.logo = makeMask(S.logoImg, S.invert) || S.logo; changed(true); } });
+  function reprocess() {
+    if (!S.logoImg) return;
+    const r = processLogo(S.logoImg, { style: S.logoStyle, detail: S.detail, invert: S.invert });
+    const err = $('ihdLogoErr');
+    if (!r) { err.textContent = 'Nothing would be engraved with these settings — try another style or move the Detail slider.'; err.hidden = false; return; }
+    err.hidden = true; S.logo = r.mask; S.logoMode = r.mode; drawLogoPreview(); changed(true);
+  }
+  function drawLogoPreview() {
+    const cv = $('ihdLogoPrev'), note = $('ihdLogoNote'); if (!cv || !S.logo) return;
+    const W = 240, H = 150, dpr = Math.min(window.devicePixelRatio || 1, 2); cv.width = W * dpr; cv.height = H * dpr; cv.style.width = W + 'px'; cv.style.height = H + 'px';
+    const x = cv.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0); x.fillStyle = '#121314'; x.fillRect(0, 0, W, H);
+    const m = S.logo, k = Math.min((W - 24) / m.width, (H - 24) / m.height), dw = m.width * k, dh = m.height * k;
+    const t = document.createElement('canvas'); t.width = m.width; t.height = m.height; const tx = t.getContext('2d'); tx.drawImage(m, 0, 0); tx.globalCompositeOperation = 'source-in'; tx.fillStyle = '#d7d9dc'; tx.fillRect(0, 0, m.width, m.height);
+    x.drawImage(t, (W - dw) / 2, (H - dh) / 2, dw, dh);
+    const msg = { alpha: 'Transparent logo detected — engraved as-is.', flat: 'Plain background removed automatically.', adaptive: 'Photo of a logo detected — background, shadows and paper removed.', sheet: 'Card or paper detected — we kept only what is printed on it and straightened it.', photo: 'Photo engraving style — shades are made with fine laser dots.' };
+    if (note) note.textContent = (msg[S.logoMode] || '') + ' Laser engraving is one colour, so colours become a single tone.';
+    document.querySelectorAll('#ihdLogoStyle button').forEach(b => b.classList.toggle('on', b.dataset.s === S.logoStyle));
+  }
+  $('ihdInvert').addEventListener('change', e => { S.invert = e.target.checked; reprocess(); });
+  document.querySelectorAll('#ihdLogoStyle button').forEach(b => b.addEventListener('click', () => { S.logoStyle = b.dataset.s; reprocess(); }));
+  let dtm; $('ihdDetail').addEventListener('input', e => { S.detail = e.target.value / 100; clearTimeout(dtm); dtm = setTimeout(reprocess, 120); });
   $('ihdCenter').addEventListener('click', () => { const d = design(); d[sel + 'X'] = 0.5; if (shapeOf(S.product) === 'strip') d[sel + 'Y'] = 0.5; changed(false); });
   $('ihdReset').addEventListener('click', () => { const d = design(); Object.assign(d, defaultLayout(S.product, S.side, !!S.logo), { touched: false }); syncUI(); changed(true); });
   $('ihdQty').addEventListener('input', updateCTA);
@@ -470,11 +738,13 @@ export function init(cfg = {}) {
   $('ihdLogoRemove').addEventListener('click', () => { S.logo = null; S.logoImg = null; $('ihdFile').value = ''; Object.values(S.designs).forEach(d => { d.logoOn = false; }); syncUI(); changed(true); });
   $('ihdFile').addEventListener('change', async e => {
     const f = e.target.files && e.target.files[0]; const err = $('ihdLogoErr'); err.hidden = true; if (!f) return;
-    if (f.size > 10 * 1024 * 1024) { err.textContent = 'That file is over 10 MB. Please use a smaller image.'; err.hidden = false; return; }
+    if (f.size > 25 * 1024 * 1024) { err.textContent = 'That file is over 25 MB. Please use a smaller image.'; err.hidden = false; return; }
     try {
-      const { img, url } = await loadImage(f); const m = makeMask(img, S.invert); URL.revokeObjectURL(url);
-      if (!m) { err.textContent = "We couldn't find a logo in that image. Try a PNG with a transparent or plain background."; err.hidden = false; return; }
-      const first = !S.logo; S.logoImg = img; S.logo = m;
+      const { img, url } = await loadImage(f).catch(() => { throw new Error("This file type can't be opened in the browser. Please upload a JPG or PNG (on iPhone: share the photo as JPG)."); });
+      S.logoStyle = 'auto'; S.detail = 0.5; S.invert = false; $('ihdInvert').checked = false; $('ihdDetail').value = 50;
+      const r = processLogo(img, { style: 'auto', detail: 0.5, invert: false }); URL.revokeObjectURL(url);
+      if (!r) { err.textContent = "We couldn't find a logo in that image. Try a clearer photo, or a PNG/JPG of your logo."; err.hidden = false; return; }
+      const first = !S.logo; S.logoImg = img; S.logo = r.mask; S.logoMode = r.mode; drawLogoPreview();
       // lay out every untouched side for a logo; front sides show the logo
       ORDER.forEach(p => PRODUCTS[p].sides.forEach((_, i) => { const d = design(p, i); if (!d.touched || first) { const L = defaultLayout(p, i, true); Object.assign(d, i === 0 ? L : { logoOn: d.logoOn, logoX: L.logoX, logoY: L.logoY, logoSize: L.logoSize }); } }));
       sel = 'logo'; syncUI(); changed(true);
@@ -512,3 +782,5 @@ export function init(cfg = {}) {
   syncUI(); build3D(); drawEditor(); updateCTA();
   return { state: S, PRODUCTS };
 }
+
+export { processLogo };

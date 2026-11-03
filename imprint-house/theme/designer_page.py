@@ -52,6 +52,8 @@ CSS = """<style>
 .ih-gal{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}@media(min-width:900px){.ih-gal{grid-template-columns:repeat(4,1fr);gap:16px}}
 .ih-gal a{display:block;aspect-ratio:1/1;border-radius:14px;overflow:hidden;background:#eee}
 .ih-gal img{width:100%;height:100%;object-fit:cover;transition:transform .5s}.ih-gal a:hover img{transform:scale(1.05)}
+.ihd-prev{display:flex;gap:.9rem;align-items:center;margin:.9rem 0 .2rem}.ihd-prev canvas{border-radius:10px;flex:none;max-width:55%}.ihd-prev .ihd-note{margin:0!important}
+@media(max-width:480px){.ihd-prev{flex-direction:column;align-items:flex-start}.ihd-prev canvas{max-width:100%}}
 .ihd [hidden],.ih [hidden]{display:none!important}
 </style>"""
 
@@ -69,10 +71,13 @@ MARKUP = f"""<div class="ih"><section class="ih-band ihd-band"><div class="wrap"
 <div class="ihd-step"><div class="ihd-h"><b>1</b>Product</div><div class="chips" id="ihdProducts">{PROD_BTNS}</div><p class="ihd-price" id="ihdPrice"></p></div>
 <div class="ihd-step"><div class="ihd-h"><b>2</b>Colour <span id="ihdColourName"></span></div><div class="ihd-sw" id="ihdColours"></div></div>
 <div class="ihd-step"><div class="ihd-h"><b>3</b>Your logo</div>
-<label class="ihd-upload"><input type="file" id="ihdFile" accept="image/png,image/jpeg,image/webp,image/svg+xml"><span>&#8682; Upload your logo</span><small>PNG, JPG or SVG &middot; transparent or plain background works best</small></label>
+<label class="ihd-upload"><input type="file" id="ihdFile" accept="image/*"><span>&#8682; Upload your logo</span><small>Any JPG, PNG or SVG &mdash; even a phone photo of your logo or visiting card. We clean it up automatically.</small></label>
 <p class="ihd-err" id="ihdLogoErr" hidden></p>
 <p class="ihd-note" id="ihdLogoEmpty">No logo yet &mdash; you can also engrave text only.</p>
 <div id="ihdLogoControls" hidden>
+<div class="ihd-prev"><canvas id="ihdLogoPrev" aria-label="How your logo will be engraved"></canvas><p class="ihd-note" id="ihdLogoNote"></p></div>
+<div class="ihd-sides" style="margin-top:.6rem"><span>Style:</span><div class="chips" id="ihdLogoStyle"><button type="button" data-s="auto" class="on">Auto</button><button type="button" data-s="logo">Logo</button><button type="button" data-s="photo">Photo</button></div></div>
+<label class="ihd-range">Detail <input type="range" id="ihdDetail" min="0" max="100" value="50"></label>
 <label class="ihd-check"><input type="checkbox" id="ihdLogoOn" checked> Show logo on this side</label>
 <label class="ihd-range">Logo size <input type="range" id="ihdLogoSize" min="10" max="100" value="60"></label>
 <label class="ihd-check"><input type="checkbox" id="ihdInvert"> Invert (for a light logo on a dark background)</label>

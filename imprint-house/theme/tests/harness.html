@@ -1,0 +1,25 @@
+<!doctype html><html><body style="margin:0;background:#fff;font:12px sans-serif">
+<div id="out"></div>
+<script src="../assets/ih-designer.js"></script>
+<script>
+const files = ['logo-transparent.png','logo-white.jpg','whatsapp-forward.jpg','badge-square.jpg','badge-circle.jpg','phone-photo-printed-logo.jpg','visiting-card-photo.jpg','paper-full-frame.jpg','letterhead-photo.jpg'];
+const styles = (new URLSearchParams(location.search).get('styles') || 'auto').split(',');
+window.done = false;
+(async () => {
+  for (const f of files) {
+    const img = new Image(); img.src = 'logos/' + f; await img.decode();
+    const row = document.createElement('div'); row.style.cssText = 'display:flex;gap:8px;align-items:center;padding:4px;border-bottom:1px solid #ccc';
+    const o = document.createElement('img'); o.src = img.src; o.style.cssText = 'width:200px;height:140px;object-fit:contain;background:#eee'; row.appendChild(o);
+    for (const st of styles) {
+      const t0 = performance.now(); const r = IHDesigner.processLogo(img, { style: st, detail: 0.5 }); const ms = Math.round(performance.now() - t0);
+      const cv = document.createElement('canvas'); cv.width = 260; cv.height = 140; const x = cv.getContext('2d'); x.fillStyle = '#121314'; x.fillRect(0, 0, 260, 140);
+      if (r) { const m = r.mask, k = Math.min(240 / m.width, 120 / m.height); const t = document.createElement('canvas'); t.width = m.width; t.height = m.height; const tx = t.getContext('2d'); tx.drawImage(m, 0, 0); tx.globalCompositeOperation = 'source-in'; tx.fillStyle = '#d7d9dc'; tx.fillRect(0, 0, m.width, m.height); x.drawImage(t, (260 - m.width * k) / 2, (140 - m.height * k) / 2, m.width * k, m.height * k); }
+      const lab = document.createElement('div'); lab.style.width = '120px'; lab.textContent = `${st} → ${r ? r.mode : 'NULL'} ${ms}ms ${r && r.stats ? JSON.stringify(r.stats) : ''}`;
+      row.appendChild(cv); row.appendChild(lab);
+    }
+    const n = document.createElement('div'); n.textContent = f; n.style.width = '120px'; row.appendChild(n);
+    document.getElementById('out').appendChild(row);
+  }
+  window.done = true;
+})().catch(e => { document.body.append('ERR ' + e.message); window.done = true; });
+</script></body></html>
