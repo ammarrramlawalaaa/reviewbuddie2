@@ -118,8 +118,12 @@ WhatsApp +91 91095 35267 or email ammarramlawala.ar@gmail.com. We usually reply 
 **Where we deliver:** We deliver across India through trusted courier partners.
 
 **Delivery charges**
-- Orders of ₹2,000 and above: free delivery
-- Orders under ₹2,000 (for example a single paid sample): flat ₹99
+- Keychains: free delivery on 100+ pieces
+- Pens: free delivery on 50+ pieces
+- Pen & keychain gift sets: free delivery on 40+ sets
+- Insulated flasks and flask gift sets: free delivery on every bulk order
+- Everything else: free delivery on orders of ₹2,000 and above
+- Below these (for example a single paid sample): flat ₹99
 
 All product prices already include GST.
 
