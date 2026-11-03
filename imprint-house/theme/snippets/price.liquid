@@ -114,12 +114,18 @@
 <div ref="priceContainer">
   {% if ih_per != '' %}
     {% comment %} Imprint House: per-piece price first; the 50-pack total and MOQ underneath {% endcomment %}
+    {%- liquid
+      assign ih_abbr = 'pcs'
+      if ih_unit == 'set'
+        assign ih_abbr = 'sets'
+      endif
+    -%}
     {% if is_product_card %}
-      <span class="price"><bdi>{{ ih_per }}</bdi></span>
-      <span class="ih-per">per {{ ih_unit }} · MOQ {{ ih_moq }} · GST incl.</span>
+      <span class="price"><bdi>{{ ih_per }}</bdi> <small class="ih-unit">/ {{ ih_unit }}</small></span>
+      <span class="ih-per">MOQ {{ ih_moq }} {{ ih_abbr }} · GST incl.</span>
     {% elsif ih_mode == 'unit' %}
-      <span class="price"><bdi>{{ ih_per }}</bdi> <small class="ih-unit">per {{ ih_unit }}</small></span>
-      <span class="ih-per">Minimum order (MOQ): {{ ih_moq }} {{ ih_unit }}s{% if ih_free > 0 %} · Free shipping on {{ ih_free }}+ {{ ih_unit }}s{% endif %} · GST included</span>
+      <span class="price"><bdi>{{ ih_per }}</bdi> <small class="ih-unit">/ {{ ih_unit }}</small></span>
+      <span class="ih-per">(MOQ {{ ih_moq }} {{ ih_abbr }}){% if ih_free > 0 %} · Free shipping on {{ ih_free }}+ {{ ih_abbr }}{% else %} · Free shipping on bulk orders{% endif %} · GST included</span>
       {%- if ih_main -%}<span class="ih-moq" data-moq="{{ ih_moq }}" hidden></span><span class="ih-moq-msg ih-per" hidden>Quantity set to the minimum order of {{ ih_moq }}.</span>{%- endif -%}
     {% else %}
       <span class="price"><bdi>{{ ih_per }}</bdi> <small class="ih-unit">per {{ ih_unit }}</small></span>
@@ -159,6 +165,10 @@
           <bdi>{{ price | default: '&nbsp;' }}</bdi>
         </span>
       {% endif %}
+    {% elsif selected_variant.title contains 'Sample' %}
+      <span class="price"
+        ><bdi>{{ selected_variant.price | money_without_trailing_zeros | replace: 'Rs. ', '₹' | replace: 'Rs.', '₹' }}</bdi> <small class="ih-unit">/ sample</small></span
+      >
     {% else %}
       <span class="price"
         ><bdi>{{ price | default: '&nbsp;' }}</bdi></span
@@ -177,7 +187,7 @@
   {%- endif -%}
   {%- unless is_product_card -%}
     {%- if ih_per == '' and selected_variant.title contains 'Sample' -%}
-      <span class="ih-per">One engraved sample · GST included</span>
+      <span class="ih-per">One engraved piece to check before your bulk order · GST included</span>
     {%- endif -%}
     {%- if ih_main -%}
       <span class="ih-mock">Free digital mockup first: nothing is engraved until you approve your design. <a href="https://wa.me/919109535267?text={{ 'Hi, I would like a free mockup for: ' | append: product_resource.title | url_encode }}" target="_blank" rel="noopener">Get my mockup on WhatsApp &rarr;</a></span>
