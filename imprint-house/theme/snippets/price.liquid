@@ -124,9 +124,9 @@
       <span class="price"><bdi>{{ ih_per }}</bdi> <small class="ih-unit">/ {{ ih_unit }}</small></span>
       <span class="ih-per">MOQ {{ ih_moq }} {{ ih_abbr }} · GST incl.</span>
     {% elsif ih_mode == 'unit' %}
-      <span class="price"><bdi>{{ ih_per }}</bdi> <small class="ih-unit">/ {{ ih_unit }}</small></span>
+      <span class="price{% if ih_main %} ih-main-price{% endif %}"><bdi>{{ ih_per }}</bdi> <small class="ih-unit">/ {{ ih_unit }}</small></span>
       <span class="ih-per">(MOQ {{ ih_moq }} {{ ih_abbr }}){% if ih_free > 0 %} · Free shipping on {{ ih_free }}+ {{ ih_abbr }}{% else %} · Free shipping on bulk orders{% endif %} · GST included</span>
-      {%- if ih_main -%}<span class="ih-moq" data-moq="{{ ih_moq }}" hidden></span><span class="ih-moq-msg ih-per" hidden>Quantity set to the minimum order of {{ ih_moq }}.</span>{%- endif -%}
+      {%- if ih_main -%}<span class="ih-moq" data-moq="{{ ih_moq }}" hidden></span><span class="ih-moq-msg" hidden>Quantity set to the minimum order of {{ ih_moq }}.</span>{%- endif -%}
     {% else %}
       <span class="price"><bdi>{{ ih_per }}</bdi> <small class="ih-unit">per {{ ih_unit }}</small></span>
       <span class="ih-per">Minimum order (MOQ): 50 {{ ih_unit }}s · {{ price }} for 50 · GST included</span>
@@ -190,7 +190,7 @@
       <span class="ih-per">One engraved piece to check before your bulk order · GST included</span>
     {%- endif -%}
     {%- if ih_main -%}
-      <span class="ih-mock">Free digital mockup first: nothing is engraved until you approve your design. <a href="https://wa.me/919109535267?text={{ 'Hi, I would like a free mockup for: ' | append: product_resource.title | url_encode }}" target="_blank" rel="noopener">Get my mockup on WhatsApp &rarr;</a></span>
+      <span class="ih-mock"><span>Free digital mockup first &mdash; nothing is engraved until you approve your design.</span><a href="https://wa.me/919109535267?text={{ 'Hi, I would like a free mockup for: ' | append: product_resource.title | url_encode }}" target="_blank" rel="noopener">Get my mockup on WhatsApp &rarr;</a></span>
     {%- endif -%}
   {%- endunless -%}
 </div>

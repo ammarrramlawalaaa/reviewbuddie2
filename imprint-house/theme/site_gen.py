@@ -54,11 +54,20 @@ main ol li,main ul li{margin-bottom:.35rem}
 .menu-list__link[href="/pages/3d-designer"]:hover .menu-list__link-title{background:#d9b98a}
 .menu-list__submenu .mega-menu__link{color:#f3eadf}.menu-list__submenu .mega-menu__link:hover{color:#d9b98a}
 /* per-piece price + mockup-first note on product pages */
-.ih-unit{font-size:.55em;font-weight:500;color:#6b6b6b;letter-spacing:0}
+.ih-unit{font-size:.85rem;font-weight:500;color:#6b6b6b;letter-spacing:0}
 .ih-per{display:block;font-size:.82rem;color:#6b6b6b;margin-top:.3rem;font-weight:500;letter-spacing:0}
 product-card .ih-per,.product-card .ih-per{font-size:.75rem;margin-top:.15rem}
-.ih-mock{display:block;margin-top:1rem;padding:.85rem 1rem;border:1px solid #e4e0d8;border-radius:12px;background:#f7f5f1;font-size:.88rem;line-height:1.5;color:#16181a;font-weight:400}
-.ih-mock a{display:inline-block;margin-top:.35rem;font-weight:600;color:#16181a;text-decoration:underline}
+.ih-main-price bdi{font-size:1.75rem;font-weight:600;letter-spacing:-.01em}
+.ih-moq-msg{display:block;font-size:.82rem;color:#9a6b1f;margin-top:.3rem}
+.ih-per[hidden],.ih-moq-msg[hidden]{display:none!important}
+.ih-mock{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem .9rem;margin-top:1rem;padding:.75rem .9rem;border:1px solid #e4e0d8;border-radius:12px;background:#f7f5f1;font-size:.85rem;line-height:1.45;color:#16181a;font-weight:400}
+.ih-mock>span{flex:1 1 220px}
+main .ih-mock a[href*="wa.me"]{display:inline-flex!important;flex:0 0 auto;margin:0!important;padding:.5rem .95rem!important;font-size:.82rem!important;line-height:1.2;border-radius:999px!important;background:#25D366!important;color:#fff!important;text-decoration:none!important;font-weight:600}
+/* sticky add-to-cart bar: keep it to image, price and button */
+sticky-add-to-cart .ih-per,sticky-add-to-cart .ih-mock,sticky-add-to-cart .ih-moq-msg{display:none!important}
+sticky-add-to-cart .ih-main-price bdi{font-size:inherit;font-weight:inherit}
+sticky-add-to-cart .sticky-add-to-cart__variant{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:240px}
+sticky-add-to-cart button{white-space:nowrap}
 /* the built-in recommendations block shows nothing yet; our own product grid sits below instead */
 [id*="__product_recommendations_"]{display:none!important}
 /* real product photos strip */
