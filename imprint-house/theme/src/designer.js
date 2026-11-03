@@ -17,7 +17,7 @@ const SILVER = '#d7d9dc', DARK = '#2b2c2e';
 // engraving areas in model units (w = along the text direction)
 const PRODUCTS = {
   keychain: { label: 'Keychain', sides: ['Front', 'Back'], area: { w: 2.42, h: 4.0 }, wrap: null,
-    colours: [{ name: 'Black & chrome', swatch: '#111', bg: '#0d0d0e', engrave: SILVER }] },
+    colours: [{ name: 'Polished silver', swatch: 'linear-gradient(135deg,#f3f4f6,#9fa4a9 50%,#e8eaec)', bg: '#4d5156', engrave: '#ffffff', finish: 'frost' }] },
   pen: { label: 'Metal pen', sides: ['Barrel'], area: { w: 4.4, h: 0.52 }, wrap: 'v',
     colours: [{ name: 'Black', swatch: '#151515', bg: '#161616', engrave: SILVER, body: 'black' },
               { name: 'Silver', swatch: '#c3c6ca', bg: '#b9bcc0', engrave: DARK, body: 'silver' },
@@ -407,7 +407,9 @@ function buildKeychain(mats) {
   // generous bevel = a rounded (half-round) bezel profile that catches highlights like polished metal
   const frame = new Mesh(new ExtrudeGeometry(fs, { depth: D - 0.1, bevelEnabled: true, bevelThickness: 0.06, bevelSize: 0.055, bevelSegments: 7, curveSegments: 48 }), chrome);
   frame.position.z = -(D - 0.1) / 2; g.add(frame);
-  const face = new Mesh(new ExtrudeGeometry(roundedRect(W - bez * 2 + 0.02, H - bez * 2 + 0.02, R - bez * 0.75), { depth: D - 0.08, bevelEnabled: false, curveSegments: 48 }), MAT.enamel());
+  // mirror-polished face: in a dark room it reflects the dark surroundings and reads gunmetal, exactly like the product photos
+  const mirror = new MeshStandardMaterial({ color: 0x9aa0a7, metalness: 1, roughness: 0.07, envMapIntensity: 0.85 });
+  const face = new Mesh(new ExtrudeGeometry(roundedRect(W - bez * 2 + 0.02, H - bez * 2 + 0.02, R - bez * 0.75), { depth: D - 0.08, bevelEnabled: false, curveSegments: 48 }), mirror);
   face.position.z = -(D - 0.08) / 2; g.add(face);
   // engraving surfaces (front + back)
   const a = PRODUCTS.keychain.area, ey = -0.15, ez = (D - 0.08) / 2 + 0.002;
@@ -537,6 +539,8 @@ class Surface {
     }
     this.toPhys(this.glowL, this.glowP);
     this.mat.color.set(colour.engrave); this.mat.emissiveIntensity = progress < 1 ? 2.2 : 0;
+    // frosted engraving (on polished metal) is matte and bright; coating-removal engraving is metallic
+    if (colour.finish === 'frost') { this.mat.metalness = 0.05; this.mat.roughness = 0.82; } else { this.mat.metalness = 0.9; this.mat.roughness = 0.38; }
     this.tex.needsUpdate = true; this.gtex.needsUpdate = true;
   }
 }
