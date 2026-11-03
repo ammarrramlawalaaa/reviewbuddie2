@@ -89,7 +89,7 @@ json.dump(hg,open(OUT+"/header-group.json","w"),ensure_ascii=False,separators=('
 # ---- collection banner
 cb="""<div class="ih"><section class="ih-band"><div class="wrap"><div class="crumb"><a href="/">Home</a> / <a href="/collections/all">Products</a></div><span class="eb">The Imprint House</span>
 <h1>{{ collection.title | default: 'All products' }}</h1>{% if collection.description != blank %}<p>{{ collection.description | strip_html }}</p>{% else %}<p>Laser-engraved with your logo in our own workshop. Free digital mockup before you order.</p>{% endif %}
-<div class="ih-chips"><span>Bulk orders from 20 pieces</span><span>Free digital mockup in 24 hrs</span><span>Try it in 3D</span><span>Prices incl. GST</span></div></div></section></div>"""
+<div class="ih-chips"><span>Bulk orders from 10 pieces</span><span>Free digital mockup in 24 hrs</span><span>Try it in 3D</span><span>Prices incl. GST</span></div></div></section></div>"""
 col=load(SP+"/orig_templates_collection.json")
 col["sections"]={"ih_banner":{"type":"custom-liquid","settings":{"custom_liquid":cb,"background_color":"","section_width":"full-width","padding-block-start":0,"padding-block-end":0}}, **{k:v for k,v in col["sections"].items() if k!="section"}}
 col["sections"]["main"]["settings"]["padding-block-start"]=40
@@ -118,7 +118,7 @@ ft=f"""<div class="ih"><footer class="ih-foot"><div class="wrap"><div class="col
 <div><img src="{{{{ 'imprint-house-logo-light.png' | file_url }}}}" alt="The Imprint House — Engraved Corporate Gifts" width="180" height="122" loading="lazy" style="height:auto;width:180px;max-width:60%"><p class="tl">Branded gifts, engraved in-house and delivered ready to give — across India.</p><a class="btn b-brass" style="display:inline-flex;color:#16181a" href="{WA}">WhatsApp +91 91095 35267</a></div>
 <div><h5>Shop</h5><a href="/collections/ready-gift-packages">Gift packages</a><a href="/collections/keychains">Keychains</a><a href="/collections/pens">Pens</a><a href="/collections/bottles-drinkware">Bottles & mugs</a></div>
 <div><h5>Help</h5><a href="/pages/faq">FAQ</a><a href="/pages/shipping-delivery">Shipping &amp; delivery</a><a href="/pages/refunds-replacements">Refunds &amp; replacements</a><a href="/pages/contact">Contact us</a><a href="/pages/legal">Legal &amp; business info</a></div>
-<div><h5>Get started</h5><a href="/pages/3d-designer">3D designer</a><a href="/pages/get-a-quote">Request a quote</a><p style="color:#9a9a9a;font-size:.88rem;line-height:1.6;margin-top:.8rem">Bulk orders from 20 pieces.<br>All prices include GST.</p></div>
+<div><h5>Get started</h5><a href="/pages/3d-designer">3D designer</a><a href="/pages/get-a-quote">Request a quote</a><p style="color:#9a9a9a;font-size:.88rem;line-height:1.6;margin-top:.8rem">Bulk orders from 10 pieces.<br>All prices include GST.</p></div>
 </div></div></footer></div>"""
 fg=load(SP+"/orig_sections_footer-group.json")
 ut=fg["sections"]["footer_utilities_jLGE8U"]; ut["blocks"].pop("social_links_Ew63Kq",None); ut["block_order"]=[b for b in ut["block_order"] if b!="social_links_Ew63Kq"]

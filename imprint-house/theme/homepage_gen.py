@@ -121,7 +121,7 @@ hero = CSS + f"""<div class="ih"><section class="ih-hero"><div class="wrap g">
 <h1>Gifts with your name <em>cut into metal.</em></h1>
 <p class="lead">Keychains, pens, bottles and ready gift kits — engraved in our own workshop and delivered ready to hand over. For shops, clinics, schools, dealerships and offices.</p>
 <div style="display:flex;gap:.8rem;flex-wrap:wrap"><a class="btn b-brass" href="/pages/3d-designer">Design yours in 3D →</a><a class="btn b-ghost" href="{WA}">WhatsApp us</a></div>
-<div class="stats"><div><b>24 hrs</b><span>Free mockup</span></div><div><b>From 20</b><span>Pieces per order</span></div><div><b>100%</b><span>In-house</span></div></div></div>
+<div class="stats"><div><b>24 hrs</b><span>Free mockup</span></div><div><b>From 10</b><span>Pieces per order</span></div><div><b>100%</b><span>In-house</span></div></div></div>
 <div class="reveal" style="position:relative"><div class="pic" style="background-image:url('{HERO_IMG}')"><div class="scan"></div></div><div class="tag">YOUR LOGO</div></div>
 </div></section>
 <div class="ih-mq"><div class="t">{"".join('<span>'+x+'</span><i>✦</i>' for x in ["Car dealerships","Clinics","Schools","Hotels & resorts","Real estate","Startups","Wedding planners","Offices","Cafés"]*2)}</div></div></div>
