@@ -87,7 +87,7 @@
       assign ih_cents = selected_variant.price | divided_by: 50
       assign ih_per = ih_cents | money_without_trailing_zeros | replace: 'Rs. ', '₹' | replace: 'Rs.', '₹'
       if ih_o contains 'kits'
-        assign ih_unit = 'kit'
+        assign ih_unit = 'set'
       endif
     endif
   endfor
@@ -98,9 +98,15 @@
 -%}
 
 <div ref="priceContainer">
-  {% if is_product_card and ih_per != '' %}
-    <span class="price"><bdi>{{ ih_per }}</bdi></span>
-    <span class="ih-per">per {{ ih_unit }} · min. 50 · GST incl.</span>
+  {% if ih_per != '' %}
+    {% comment %} Imprint House: per-piece price first; the 50-pack total and MOQ underneath {% endcomment %}
+    {% if is_product_card %}
+      <span class="price"><bdi>{{ ih_per }}</bdi></span>
+      <span class="ih-per">per {{ ih_unit }} · MOQ 50 · GST incl.</span>
+    {% else %}
+      <span class="price"><bdi>{{ ih_per }}</bdi> <small class="ih-unit">per {{ ih_unit }}</small></span>
+      <span class="ih-per">Minimum order (MOQ): 50 {{ ih_unit }}s · {{ price }} for 50 · GST included</span>
+    {% endif %}
   {% elsif has_volume_pricing %}
     {% comment %} Volume pricing display {% endcomment %}
     {% if show_compare_price %}
@@ -152,9 +158,7 @@
     {% render 'unit-price', price: unit_price, measurement: selected_variant.unit_price_measurement %}
   {%- endif -%}
   {%- unless is_product_card -%}
-    {%- if ih_per != '' -%}
-      <span class="ih-per">{{ ih_per }} per {{ ih_unit }} · pack of 50 · GST included</span>
-    {%- elsif selected_variant.title contains 'Sample' -%}
+    {%- if ih_per == '' and selected_variant.title contains 'Sample' -%}
       <span class="ih-per">One engraved sample · GST included</span>
     {%- endif -%}
     {%- if ih_main -%}
