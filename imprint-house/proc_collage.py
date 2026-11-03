@@ -21,7 +21,8 @@ img = cv2.cvtColor(np.asarray(Image.open(src).convert('RGB')), cv2.COLOR_RGB2BGR
 for (a, b, c, d), nm in zip(boxes, names):
     t = img[b:d, a:c]
     # outer edge of the collage can carry a thin border: trim 2px on outside edges
-    t = t[2 if b == 0 else 0: t.shape[0] - (2 if d == H else 0), 2 if a == 0 else 0: t.shape[1] - (2 if c == W else 0)]
+    E = int(sys.argv[5]) if len(sys.argv) > 5 else 2  # outer-edge trim (collages with rounded corners need more)
+    t = t[E if b == 0 else 0: t.shape[0] - (E if d == H else 0), E if a == 0 else 0: t.shape[1] - (E if c == W else 0)]
     s = min(t.shape[:2]); t = t[(t.shape[0] - s) // 2:(t.shape[0] - s) // 2 + s, (t.shape[1] - s) // 2:(t.shape[1] - s) // 2 + s]  # square
     t = cv2.fastNlMeansDenoisingColored(t, None, 2, 2, 5, 15)          # remove webp blocking before enlarging
     up = cv2.resize(t, (1600, 1600), interpolation=cv2.INTER_LANCZOS4)
