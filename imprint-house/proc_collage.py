@@ -6,11 +6,13 @@ im = np.asarray(Image.open(src).convert('RGB')).astype(np.float32); H, W = im.sh
 L = im.mean(axis=2)
 def find_div(Lm, axis):
     # divider = run of perfectly uniform, light lines across the whole image near the centre
-    hits = []
-    for i in range(600, 655):
-        line = Lm[:, i] if axis == 0 else Lm[i, :]
-        if line.std() < 22 and line.mean() > 150: hits.append(i)
-    return (min(hits), max(hits)) if hits else (624, 628)
+    for mean_min, std_max in ((225, 15), (150, 22)):  # white gutter first (works on light backgrounds), then any light gutter
+        hits = []
+        for i in range(600, 655):
+            line = Lm[:, i] if axis == 0 else Lm[i, :]
+            if line.std() < std_max and line.mean() > mean_min: hits.append(i)
+        if hits: return min(hits), max(hits)
+    return (624, 628)
 x0, x1 = find_div(L, 0); y0, y1 = find_div(L, 1)
 print('divider x', x0, x1, 'y', y0, y1)
 pad = 2
