@@ -4,9 +4,10 @@ These are the things only you can do in Shopify admin. Do them in this order. Ev
 
 ---
 
-## 1. Publish the launch theme (1 min)
-Online Store → Themes → **"Imprint House — with logo"** → ⋯ → **Publish**
-(Or just tell Claude "publish it".)
+## 1. Publish the latest theme (1 min)
+Online Store → Themes → **"Imprint House — website fixes (4 Nov)"** → ⋯ → **Preview** to check, then **Publish**.
+It contains everything from the 4 Nov website audit (per-piece prices, new footer links, quote form, real-photo strip, link previews, 3D designer bottle/WhatsApp share).
+Claude can't publish themes or edit the live theme, so every theme update arrives as a new copy for you to publish.
 
 ## 2. Turn on a way to get paid (today)
 Settings → **Payments**
@@ -15,6 +16,7 @@ Settings → **Payments**
 - Do **not** turn on Cash on Delivery. Engraved items can't be resold if refused.
 
 ## 3. Paste the 3 policies (5 min)
+(The website already shows these as pages: /pages/shipping-delivery, /pages/refunds-replacements, /pages/legal. Pasting them into Settings → Policies makes checkout match.)
 Settings → **Policies**. Replace the auto-generated text with the versions at the bottom of this file:
 - Refund policy
 - Shipping policy
