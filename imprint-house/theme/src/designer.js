@@ -26,12 +26,15 @@ const PRODUCTS = {
     colours: [{ name: 'Teal & terracotta', swatch: 'linear-gradient(90deg,#2f5868 50%,#c2582f 50%)', bg: '#2f5868', engrave: SILVER }] },
   flask: { label: 'Flask', sides: ['Body'], area: { w: 5.6, h: 1.42 }, wrap: 'v',
     colours: [{ name: 'Black', swatch: '#141414', bg: '#131415', engrave: SILVER, body: 'black' },
-              { name: 'Red', swatch: '#b0151d', bg: '#a3121b', engrave: SILVER, body: 'red' }] },
+              { name: 'Blue', swatch: '#24409a', bg: '#22409a', engrave: SILVER, body: 'blue' },
+              { name: 'Red', swatch: '#a8161d', bg: '#a3121b', engrave: SILVER, body: 'red' }] },
+  bottle: { label: 'Water bottle', sides: ['Body'], area: { w: 4.8, h: 1.3 }, wrap: 'v',
+    colours: [{ name: 'Sage & rose gold', swatch: 'linear-gradient(90deg,#a7b79f 60%,#d39c78 60%)', bg: '#a7b79f', engrave: '#7f8683' }] },
   mug: { label: 'Coffee mug', sides: ['Front'], area: { w: 3.1, h: 2.0 }, wrap: 'h',
     colours: [{ name: 'Navy', swatch: '#1f2c55', bg: '#1f2c55', engrave: SILVER, body: 'navy' },
               { name: 'Black', swatch: '#141414', bg: '#151515', engrave: SILVER, body: 'black' }] },
 };
-const ORDER = ['keychain', 'pen', 'roller', 'flask', 'mug'];
+const ORDER = ['keychain', 'pen', 'roller', 'flask', 'bottle', 'mug'];
 
 /* ================= helpers ================= */
 const $ = (id) => document.getElementById(id);
@@ -359,7 +362,7 @@ const MAT = {
 };
 const BODY = {
   black: () => MAT.coat(0x141414, 0.5, 0.35), silver: () => MAT.coat(0xb8bbbf, 0.32, 0.95), blue: () => MAT.anodised(0x1a3aa8),
-  red: () => MAT.anodised(0xa3121b), navy: () => MAT.coat(0x1f2c55, 0.62, 0.2), flaskBlack: () => MAT.coat(0x121314, 0.5, 0.35), mugBlack: () => MAT.coat(0x151515, 0.62, 0.2),
+  red: () => MAT.anodised(0xa3121b), navy: () => MAT.coat(0x1f2c55, 0.62, 0.2), flaskBlack: () => MAT.coat(0x121314, 0.5, 0.35), flaskBlue: () => MAT.coat(0x22409a, 0.55, 0.3), flaskRed: () => MAT.coat(0xa3161d, 0.55, 0.3), mugBlack: () => MAT.coat(0x151515, 0.62, 0.2),
 };
 function studioEnvironment(renderer) {
   // bright product-photography studio: graded dome + large softboxes, so chrome, lids and rims read silver, not black
@@ -458,7 +461,7 @@ function buildRoller(mats) {
   return { group: g, base: { x: 0, y: 0, z: -1.3 }, pitch: 0.1, fit: 1.15, sideYaw: [0] };
 }
 function buildFlask(mats, colour) {
-  const g = new Group(); const body = colour.body === 'red' ? BODY.red() : BODY.flaskBlack();
+  const g = new Group(); const body = colour.body === 'red' ? BODY.flaskRed() : colour.body === 'blue' ? BODY.flaskBlue() : BODY.flaskBlack();
   const prof = [new Vector2(0, 0), new Vector2(1.18, 0), new Vector2(1.27, 0.05), new Vector2(1.3, 0.18), new Vector2(1.3, 8.0), new Vector2(1.27, 8.1), new Vector2(0, 8.1)];
   g.add(new Mesh(new LatheGeometry(prof, 96), body));
   g.add(cyl(1.24, 1.24, 0.16, MAT.coat(0x0a0a0a, 0.6, 0.2), 8.18));
@@ -481,7 +484,22 @@ function buildMug(mats, colour) {
   g.children.forEach(c => c.position.y -= 2.0);
   return { group: g, base: { x: 0, y: -0.35, z: 0 }, pitch: 0.22, fit: 1.25, sideYaw: [0] };
 }
-const BUILD = { keychain: buildKeychain, pen: buildPen, roller: buildRoller, flask: buildFlask, mug: buildMug };
+function buildBottle(mats) {
+  // sage double-wall bottle with a polished rose-gold collar and cap, and a tan carry loop
+  const g = new Group(); const sage = MAT.coat(0xa7b79f, 0.72, 0.12), rose = new MeshStandardMaterial({ color: 0xe0a585, metalness: 1, roughness: 0.16 });
+  const prof = [new Vector2(0, 0), new Vector2(1.12, 0), new Vector2(1.2, 0.08), new Vector2(1.22, 0.3), new Vector2(1.22, 6.55), new Vector2(1.16, 6.85), new Vector2(1.02, 7.05), new Vector2(0, 7.05)];
+  g.add(new Mesh(new LatheGeometry(prof, 96), sage));
+  g.add(new Mesh(new LatheGeometry([new Vector2(0, 0), new Vector2(1.0, 0), new Vector2(1.06, 0.08), new Vector2(1.06, 0.5), new Vector2(1.0, 0.6), new Vector2(0, 0.6)], 96), rose).translateY(6.95));
+  g.add(cyl(0.99, 0.99, 0.08, MAT.coat(0x1a1a1a, 0.7, 0.1), 7.6));
+  g.add(cyl(1.0, 1.0, 0.62, sage, 7.95));
+  const cap = new Mesh(new SphereGeometry(1.0, 64, 24, 0, Math.PI * 2, 0, Math.PI / 2), rose); cap.scale.y = 0.32; cap.position.y = 8.25; g.add(cap);
+  const strap = new CatmullRomCurve3([new Vector3(0.95, 7.25, 0.25), new Vector3(1.35, 7.0, 0.4), new Vector3(1.55, 6.2, 0.35), new Vector3(1.5, 5.4, 0.2), new Vector3(1.3, 5.3, 0.05), new Vector3(1.3, 6.0, -0.1), new Vector3(1.12, 7.1, -0.2)]);
+  g.add(new Mesh(new TubeGeometry(strap, 80, 0.06, 10, false), MAT.coat(0xc9a77c, 0.85, 0)));
+  const a = PRODUCTS.bottle.area; g.add(wrap(1.225, a.w, a.h / 1.225, 3.3, mats[0]));
+  g.children.forEach(c => c.position.y -= 4.3);
+  return { group: g, base: { x: 0, y: 0, z: 0 }, pitch: 0.1, fit: 1.22, sideYaw: [0] };
+}
+const BUILD = { keychain: buildKeychain, pen: buildPen, roller: buildRoller, flask: buildFlask, bottle: buildBottle, mug: buildMug };
 
 /* ================= engraving surface (texture per side) ================= */
 class Surface {
@@ -694,7 +712,7 @@ export function init(cfg = {}) {
   }
   function updateCTA() {
     const { P, C, parts } = summary(); const q = parseInt($('ihdQty').value, 10) || '';
-    const msg = `Hi, I designed a ${P.label} (${C.name}) in your 3D designer.\n${parts.join('\n')}\nFont: ${FONTS[S.font].label}${q ? `\nQuantity: ${q}` : ''}\n${S.logo ? "I'll attach my logo and the design image here." : ''}`.trim();
+    const msg = `Hi, I designed a ${P.label} (${C.name}) in your 3D designer.\n${parts.join('\n')}\nFont: ${FONTS[S.font].label}${q ? `\nQuantity: ${q}` : ''}\n${S.logo ? "I'll attach my logo file here too." : ''}`.trim();
     $('ihdWhatsApp').href = (cfg.whatsapp || 'https://wa.me/919109535267') + '?text=' + encodeURIComponent(msg);
   }
 
@@ -750,30 +768,53 @@ export function init(cfg = {}) {
       sel = 'logo'; syncUI(); changed(true);
     } catch (x) { err.textContent = x.message || 'Could not read this image.'; err.hidden = false; }
   });
-  $('ihdDownload').addEventListener('click', () => {
+  // one design image (all sides, rendered from the 3D view) for the download and the WhatsApp share
+  function composeImage() {
     const P = PRODUCTS[S.product], C = P.colours[S.colour] || P.colours[0];
     const out = document.createElement('canvas'); out.width = 1600; out.height = 1000; const o = out.getContext('2d');
     o.fillStyle = '#16181a'; o.fillRect(0, 0, 1600, 1000);
-    const shots = [];
     if (renderer && model) {
       const keepY = pivot.rotation.y, keepX = pivot.rotation.x, keepS = pivot.scale.x;
       pivot.scale.setScalar(1); pivot.rotation.x = 0;
       refreshTextures(1);
-      P.sides.forEach((_, i) => { pivot.rotation.y = (model.sideYaw[i] || 0) + 0.25; renderer.render(scene, camera); shots.push(renderer.domElement.toDataURL('image/png')); });
+      const slot = 1600 / P.sides.length;
+      P.sides.forEach((_, i) => {
+        pivot.rotation.y = (model.sideYaw[i] || 0) + 0.25; renderer.render(scene, camera);
+        const src = renderer.domElement, k = Math.min(slot / src.width, 900 / src.height), dw = src.width * k, dh = src.height * k;
+        o.drawImage(src, i * slot + (slot - dw) / 2, (900 - dh) / 2, dw, dh); // same task as render, so the buffer is still valid
+      });
       pivot.rotation.y = keepY; pivot.rotation.x = keepX; pivot.scale.setScalar(keepS);
+    } else {
+      const art = artFor(S.product, S.side); o.drawImage(art, 100, 100, 1400, 1400 * art.height / art.width);
     }
-    const done = () => {
-      o.fillStyle = '#b8925a'; o.fillRect(0, 900, 1600, 100);
-      o.fillStyle = '#16181a'; o.font = '600 34px Fraunces, Georgia, serif'; o.textBaseline = 'middle';
-      o.fillText(`The Imprint House — ${P.label} (${C.name})`, 40, 950);
-      o.font = '500 22px Inter, Arial, sans-serif'; o.textAlign = 'right'; o.fillText('Design preview · final artwork confirmed on a digital mockup', 1560, 950);
-      const a = document.createElement('a'); a.download = `imprint-house-${S.product}-design.png`; a.href = out.toDataURL('image/png'); document.body.appendChild(a); a.click(); a.remove();
-    };
-    if (!shots.length) {
-      const art = artFor(S.product, S.side); o.drawImage(art, 100, 100, 1400, 1400 * art.height / art.width); done(); return;
+    o.fillStyle = '#b8925a'; o.fillRect(0, 900, 1600, 100);
+    o.fillStyle = '#16181a'; o.font = '600 34px Fraunces, Georgia, serif'; o.textBaseline = 'middle'; o.textAlign = 'left';
+    o.fillText(`The Imprint House — ${P.label} (${C.name})`, 40, 950);
+    o.font = '500 22px Inter, Arial, sans-serif'; o.textAlign = 'right'; o.fillText('Design preview · final artwork confirmed on a digital mockup', 1560, 950);
+    return out;
+  }
+  function downloadImage(out) {
+    const a = document.createElement('a'); a.download = `imprint-house-${S.product}-design.png`; a.href = out.toDataURL('image/png'); document.body.appendChild(a); a.click(); a.remove();
+  }
+  $('ihdDownload').addEventListener('click', () => downloadImage(composeImage()));
+  // WhatsApp: on phones, share the design image straight into WhatsApp; elsewhere open the chat and save the image to attach
+  $('ihdWhatsApp').addEventListener('click', e => {
+    updateCTA();
+    const link = $('ihdWhatsApp').href, msg = decodeURIComponent((link.split('?text=')[1] || ''));
+    let out; try { out = composeImage(); } catch (x) { return; }
+    const canFiles = navigator.canShare && typeof File !== 'undefined' && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (canFiles) {
+      e.preventDefault();
+      const dataUrl = out.toDataURL('image/png'), bin = atob(dataUrl.split(',')[1]), arr = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+      const file = new File([arr], `imprint-house-${S.product}-design.png`, { type: 'image/png' });
+      if (navigator.canShare({ files: [file] })) {
+        navigator.share({ files: [file], text: msg + '\nWhatsApp: +91 91095 35267' }).catch(err => { if (!err || err.name !== 'AbortError') window.location.href = link; });
+        return;
+      }
+      window.location.href = link; return;
     }
-    let n = 0; const slot = 1600 / shots.length;
-    shots.forEach((src, i) => { const im = new Image(); im.onload = () => { const k = Math.min(slot / im.width, 900 / im.height); const dw = im.width * k, dh = im.height * k; o.drawImage(im, i * slot + (slot - dw) / 2, (900 - dh) / 2, dw, dh); if (++n === shots.length) done(); }; im.src = src; });
+    downloadImage(out); // desktop: the chat opens in a new tab and the design image is saved, ready to attach
   });
   window.addEventListener('resize', () => drawEditor());
 

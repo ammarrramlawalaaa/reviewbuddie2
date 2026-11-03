@@ -53,6 +53,26 @@ main ol li,main ul li{margin-bottom:.35rem}
 .menu-list__link[href="/pages/3d-designer"] .menu-list__link-title{background:#b8925a;color:#16181a!important;border-radius:999px;padding:.5rem 1rem;margin-inline:.25rem;font-weight:600}
 .menu-list__link[href="/pages/3d-designer"]:hover .menu-list__link-title{background:#d9b98a}
 .menu-list__submenu .mega-menu__link{color:#f3eadf}.menu-list__submenu .mega-menu__link:hover{color:#d9b98a}
+/* per-piece price + mockup-first note on product pages */
+.ih-per{display:block;font-size:.82rem;color:#6b6b6b;margin-top:.3rem;font-weight:500;letter-spacing:0}
+product-card .ih-per,.product-card .ih-per{font-size:.75rem;margin-top:.15rem}
+.ih-mock{display:block;margin-top:1rem;padding:.85rem 1rem;border:1px solid #e4e0d8;border-radius:12px;background:#f7f5f1;font-size:.88rem;line-height:1.5;color:#16181a;font-weight:400}
+.ih-mock a{display:inline-block;margin-top:.35rem;font-weight:600;color:#16181a;text-decoration:underline}
+/* the built-in recommendations block shows nothing yet; our own product grid sits below instead */
+[id*="__product_recommendations_"]{display:none!important}
+/* real product photos strip */
+.ih-proof{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}@media(min-width:900px){.ih-proof{grid-template-columns:repeat(4,1fr);gap:20px}}
+.ih-proof figure{margin:0}.ih-proof img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:16px;display:block;background:#eee}
+.ih-proof figcaption{font-size:.82rem;color:var(--muted);margin-top:.55rem;line-height:1.45}
+/* quote form */
+.ih-form{display:grid;gap:14px;max-width:760px}@media(min-width:750px){.ih-form{grid-template-columns:1fr 1fr}.ih-form .full{grid-column:1/-1}}
+.ih-form label{display:block;font-size:.78rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:.35rem}
+.ih-form input,.ih-form select,.ih-form textarea{width:100%;padding:.85rem 1rem;border:1px solid #cfc9bd;border-radius:12px;font:inherit;font-size:1rem;background:#fff;color:var(--ink)}
+.ih-form textarea{min-height:120px;resize:vertical}
+.ih-form .note{font-size:.85rem;color:var(--muted)}
+.ih-form button{border:0;cursor:pointer;font-family:inherit}
+.ih-ok{background:#eef6ef;border:1px solid #bfe0c4;border-radius:14px;padding:1.2rem 1.4rem;margin-bottom:1.4rem}
+.ih-err{background:#fbeeee;border:1px solid #e8c3c3;border-radius:14px;padding:1rem 1.2rem;margin-bottom:1.2rem}
 </style>"""
 GLOBAL = BASE + EXTRA + """<script>(function(){function pub(n,d){try{if(window.Shopify&&Shopify.analytics&&Shopify.analytics.publish){Shopify.analytics.publish(n,d)}}catch(e){}}
 document.addEventListener('click',function(e){var a=e.target&&e.target.closest?e.target.closest('a[href*="wa.me"]'):null;if(a){pub('whatsapp_click',{page:location.pathname,label:(a.textContent||'').trim().slice(0,60)})}},true);
@@ -87,14 +107,15 @@ json.dump(pg,open(OUT+"/page.json","w"),ensure_ascii=False,separators=(',',':'))
 pc=json.loads(json.dumps(pg)); json.dump(pc,open(OUT+"/page.contact.base.json","w"))
 
 # ---- footer group
-pe=f"""{{% if template.name == 'product' %}}<div class="ih"><section style="padding:clamp(2.5rem,6vw,4rem) 0;background:var(--paper)"><div class="wrap">
-<div class="ih-trust"><div><b>Free digital mockup</b><p>See it before you pay.</p></div><div><b>Try it in 3D</b><p><a href="/pages/3d-designer" style="color:inherit;text-decoration:underline">Preview your logo online</a>.</p></div><div><b>Made in-house</b><p>Our own workshop, checked by family.</p></div><div><b>Ready to give</b><p>Boxed, labelled, GST invoice.</p></div></div>
+MORE = """<div class="ih"><section class="ih-sec" style="background:#fff;padding-bottom:0"><div class="wrap"><div class="ih-head" style="margin-bottom:1.6rem"><div><span class="eb">From our workshop</span><h2>More engraved gifts</h2></div><p>Every piece engraved with your logo. Minimum 50, free digital mockup first.</p></div><div class="ih-pg">{%- assign ih_items = collections['all'].products | sort: 'price' -%}{%- assign ih_shown = 0 -%}{%- for p in ih_items -%}{%- if p.id == product.id or ih_shown >= 4 -%}{%- continue -%}{%- endif -%}{%- assign ih_shown = ih_shown | plus: 1 -%}{%- assign pp = p.price_min -%}{%- assign unit = 'piece' -%}{%- for v in p.variants -%}{%- if v.title contains 'Bulk' -%}{%- assign pp = v.price | divided_by: 50 -%}{%- if v.title contains 'kits' -%}{%- assign unit = 'kit' -%}{%- endif -%}{%- break -%}{%- endif -%}{%- endfor -%}<a class="ih-p" href="{{ p.url }}"><div class="im">{{ p.featured_image | image_url: width: 700 | image_tag: loading: 'lazy', alt: p.title }}<span class="q">Min. 50 pcs</span></div><h4>{{ p.title }}</h4><div class="pp">From <b>{{ pp | money_without_trailing_zeros | replace: 'Rs. ', '₹' | replace: 'Rs.', '₹' }}</b> / {{ unit }}</div></a>{%- endfor -%}</div></div></section></div>"""
+pe=f"""{{% if template.name == 'product' %}}{MORE}<div class="ih"><section style="padding:clamp(2.5rem,6vw,4rem) 0;background:var(--paper)"><div class="wrap">
+<div class="ih-trust"><div><b>Free digital mockup</b><p>See it before you pay.</p></div><div><b>Try it in 3D</b><p><a href="/pages/3d-designer" style="color:inherit;text-decoration:underline">Preview your logo online</a>.</p></div><div><b>Made in-house</b><p>Engraved in our own workshop and hand-checked before packing.</p></div><div><b>Ready to give</b><p>Gift sets come boxed; gift boxes for single items on request. GST invoice included.</p></div></div>
 <div class="ih-ctabox"><h3>Need 500+ pieces, names on each piece, or a different item?</h3><div style="display:flex;gap:.7rem;flex-wrap:wrap"><a class="btn b-brass" href="{WA}">Ask on WhatsApp →</a><a class="btn b-ghost" href="/pages/get-a-quote">Request a quote</a></div></div>
 </div></section></div>{{% endif %}}"""
 ft=f"""<div class="ih"><footer class="ih-foot"><div class="wrap"><div class="cols">
 <div><img src="{{{{ 'imprint-house-logo-light.png' | file_url }}}}" alt="The Imprint House — Engraved Corporate Gifts" width="180" height="122" loading="lazy" style="height:auto;width:180px;max-width:60%"><p class="tl">Branded gifts, engraved in-house and delivered ready to give — across India.</p><a class="btn b-brass" style="display:inline-flex;color:#16181a" href="{WA}">WhatsApp +91 91095 35267</a></div>
 <div><h5>Shop</h5><a href="/collections/ready-gift-packages">Gift packages</a><a href="/collections/keychains">Keychains</a><a href="/collections/pens">Pens</a><a href="/collections/bottles-drinkware">Bottles & mugs</a></div>
-<div><h5>Help</h5><a href="/pages/faq">FAQ</a><a href="/policies/shipping-policy">Shipping &amp; delivery</a><a href="/policies/refund-policy">Returns &amp; replacements</a><a href="/policies/contact-information">Contact details</a></div>
+<div><h5>Help</h5><a href="/pages/faq">FAQ</a><a href="/pages/shipping-delivery">Shipping &amp; delivery</a><a href="/pages/refunds-replacements">Refunds &amp; replacements</a><a href="/pages/contact">Contact us</a><a href="/pages/legal">Legal &amp; business info</a></div>
 <div><h5>Get started</h5><a href="/pages/3d-designer">3D designer</a><a href="/pages/get-a-quote">Request a quote</a><p style="color:#9a9a9a;font-size:.88rem;line-height:1.6;margin-top:.8rem">Minimum order 50 pieces.<br>All prices include GST.</p></div>
 </div></div></footer></div>"""
 fg=load(SP+"/orig_sections_footer-group.json")

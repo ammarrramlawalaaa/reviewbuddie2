@@ -57,7 +57,7 @@ CSS = """<style>
 .ihd [hidden],.ih [hidden]{display:none!important}
 </style>"""
 
-PROD_BTNS = "".join(f'<button type="button" data-p="{k}"{" class=on" if k=="keychain" else ""}>{v}</button>' for k,v in [("keychain","Keychain"),("pen","Metal pen"),("roller","Roller pen"),("flask","Flask"),("mug","Coffee mug")])
+PROD_BTNS = "".join(f'<button type="button" data-p="{k}"{" class=on" if k=="keychain" else ""}>{v}</button>' for k,v in [("keychain","Keychain"),("pen","Metal pen"),("roller","Roller pen"),("flask","Flask"),("bottle","Water bottle"),("mug","Coffee mug")])
 FONT_BTNS = "".join(f'<button type="button" data-f="{k}"{" class=on" if k=="serif" else ""}>{v}</button>' for k,v in [("serif","Classic"),("sans","Modern"),("bold","Bold"),("script","Script")])
 
 MARKUP = f"""<div class="ih"><section class="ih-band ihd-band"><div class="wrap"><span class="eb">3D Designer</span><h1>Design your engraved gift</h1>
@@ -95,14 +95,14 @@ MARKUP = f"""<div class="ih"><section class="ih-band ihd-band"><div class="wrap"
 <div><button type="button" id="ihdCenter" class="ihd-link">Centre selected</button><button type="button" id="ihdReset" class="ihd-link">Reset layout</button></div></div>
 <div class="ihd-step"><div class="ihd-h"><b>6</b>Get your quote</div>
 <label class="ihd-range">Quantity <input type="number" id="ihdQty" min="50" step="10" value="100" aria-label="Quantity"></label>
-<div class="ihd-cta"><a id="ihdWhatsApp" class="btn b-brass" href="https://wa.me/919109535267">Send this design on WhatsApp &rarr;</a><a class="btn b-line" href="/pages/get-a-quote">Request a quote</a></div>
+<div class="ihd-cta"><a id="ihdWhatsApp" class="btn b-brass" target="_blank" rel="noopener" href="https://wa.me/919109535267?text=Hi%2C%20I%20designed%20a%20gift%20in%20your%203D%20designer%20and%20would%20like%20a%20free%20mockup.">Send this design on WhatsApp &rarr;</a><a class="btn b-line" href="/pages/get-a-quote">Request a quote</a></div>
 <p class="ihd-note">Tip: tap <b>Download preview</b>, then attach the image and your logo file in WhatsApp. Laser engraving is single-tone, so we convert your logo automatically and send you a digital mockup to approve before we make anything. Minimum order 50 pieces.</p></div>
 </div></div></section></div>"""
 
-CFG_LIQ = """{%- assign ihpairs = 'keychain:classic-metal-keychain,pen:metal-ball-pen,roller:matte-roller-pen-gift-case,mug:steel-coffee-mug-logo' | split: ',' -%}{%- capture ihp -%}{%- for pair in ihpairs -%}{%- assign kv = pair | split: ':' -%}{%- assign pr = all_products[kv[1]] -%}{%- if pr.id -%}{%- assign pp = pr.price_min -%}{%- for v in pr.variants -%}{%- if v.title contains 'Bulk' -%}{%- assign pp = v.price | divided_by: 50 -%}{%- break -%}{%- endif -%}{%- endfor -%}"{{ kv[0] }}":{"url":{{ pr.url | json }},"from":{{ pp | money_without_trailing_zeros | replace: 'Rs. ', '₹' | replace: 'Rs.', '₹' | json }}},{%- endif -%}{%- endfor -%}{%- endcapture -%}
+CFG_LIQ = """{%- assign ihpairs = 'keychain:classic-metal-keychain,pen:metal-ball-pen,roller:matte-roller-pen-gift-case,flask:insulated-steel-flask-logo,bottle:stainless-steel-bottle-750-ml,mug:steel-coffee-mug-logo' | split: ',' -%}{%- capture ihp -%}{%- for pair in ihpairs -%}{%- assign kv = pair | split: ':' -%}{%- assign pr = all_products[kv[1]] -%}{%- if pr.id -%}{%- assign pp = pr.price_min -%}{%- for v in pr.variants -%}{%- if v.title contains 'Bulk' -%}{%- assign pp = v.price | divided_by: 50 -%}{%- break -%}{%- endif -%}{%- endfor -%}"{{ kv[0] }}":{"url":{{ pr.url | json }},"from":{{ pp | money_without_trailing_zeros | replace: 'Rs. ', '₹' | replace: 'Rs.', '₹' | json }}},{%- endif -%}{%- endfor -%}{%- endcapture -%}
 {%- assign ex = all_products['executive-gift-kit-under-600'] -%}"""
-CFG_JS_LIVE = """window.IHD_CFG={whatsapp:'https://wa.me/919109535267',products:{ {{ ihp }}"flask":{"note":{% if ex.id %}{{ 'The flask comes in our <a href="' | append: ex.url | append: '">Executive Gift Set</a> with a pen and keychain.' | json }}{% else %}"Ask us on WhatsApp for flask pricing."{% endif %} } } };"""
-CFG_JS_PRE = """window.IHD_CFG={whatsapp:'https://wa.me/919109535267',products:{"keychain":{"url":"#","from":"₹45"},"pen":{"url":"#","from":"₹80"},"roller":{"url":"#","from":"₹120"},"mug":{"url":"#","from":"₹220"},"flask":{"note":"The flask comes in our <a href=\\"#\\">Executive Gift Set</a> with a pen and keychain."}}};"""
+CFG_JS_LIVE = """window.IHD_CFG={whatsapp:'https://wa.me/919109535267',products:{ {{ ihp }} } };"""
+CFG_JS_PRE = """window.IHD_CFG={whatsapp:'https://wa.me/919109535267',products:{"keychain":{"url":"#","from":"₹45"},"pen":{"url":"#","from":"₹80"},"roller":{"url":"#","from":"₹120"},"flask":{"url":"#","from":"₹349"},"bottle":{"url":"#","from":"₹350"},"mug":{"url":"#","from":"₹220"}}};"""
 JS_URL = "./dist/ih-designer.js" if PREVIEW else "{{ 'ih-designer.js' | asset_url }}"
 LOADER = "(function(){var s=document.createElement('script');s.src='" + JS_URL + "';s.onload=function(){if(window.IHDesigner&&IHDesigner.init){IHDesigner.init(window.IHD_CFG)}};s.onerror=function(){var l=document.querySelector('.ihd-loading');if(l)l.textContent='The 3D preview could not load. Please refresh the page.'};document.head.appendChild(s)})();"
 SCRIPT = ("" if PREVIEW else CFG_LIQ) + "<script>" + (CFG_JS_PRE if PREVIEW else CFG_JS_LIVE) + LOADER + "</script>"

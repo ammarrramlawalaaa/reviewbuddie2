@@ -243,7 +243,15 @@ cta=f"""<div class="ih"><section class="ih-sec ih-cta"><div class="wrap"><span c
 KLIQ="""[{%- for product in collections['ready-gift-packages'].products -%}{%- assign pp = product.price_min -%}{%- for v in product.variants -%}{%- if v.title contains 'Bulk' -%}{%- assign pp = v.price | divided_by: 50 -%}{%- break -%}{%- endif -%}{%- endfor -%}{%- assign nm = product.title | split: ' (' | first | split: ' — ' | first -%}{%- assign inc = product.description | split: '</p>' | first | strip_html | remove: "What's inside:" | strip | truncatewords: 14 -%}{n:{{ nm | json }},p:{{ pp | divided_by: 100 }},u:{{ product.url | json }},d:{{ inc | json }}}{%- unless forloop.last -%},{%- endunless -%}{%- endfor -%}]"""
 KPRE='[{n:"Essential Gift Set",p:249,u:"#",d:"Engraved pen and keychain in a black gift box"},{n:"Executive Gift Set",p:549,u:"#",d:"Flask, pen and keychain in a black gift box"}]'
 planner=planner.replace('__K__',KPRE if PREVIEW else KLIQ)
-order=[("hero",hero),("packages",packages),("demo",demo),("products",products),("cta",cta)]
+REAL=[("pen-keychain-set-black-real.jpg","Black pen and keychain gift set, actual product photo","Pen & keychain set in its gift box"),
+      ("pen-keychain-set-silver-real.jpg","Silver pen and keychain gift set, actual product photo","Silver pen & keychain set"),
+      ("matte-roller-pen-gift-case-real.jpg","Matte roller pen in its gift case, actual product photo","Roller pen in its gift case"),
+      ("matte-roller-pen-open-real.jpg","Roller pen with cap removed, actual product photo","Roller pen, cap off")]
+proof=('<div class="ih"><section class="ih-sec" style="background:#fff"><div class="wrap"><div class="ih-head"><div><span class="eb">Real photos, not renders</span>'
+       '<h2>What actually arrives.</h2></div><p>Phone photos of our actual products, not studio renders. Ask us on WhatsApp for photos and videos of recent orders.</p></div><div class="ih-proof">'
+       + "".join('<figure class="reveal"><img src="{{ \'%s\' | file_url }}" alt="%s" loading="lazy" width="946" height="1240"><figcaption>%s</figcaption></figure>' % r for r in REAL)
+       + '</div><div style="margin-top:1.8rem"><a class="btn b-dark" href="' + WA + '">Ask for recent order photos &rarr;</a></div></div></section></div>')
+order=[("hero",hero),("packages",packages),("demo",demo),("products",products),("proof",proof),("cta",cta)]
 if PREVIEW:
     open(sys.argv[2],"w").write('<!doctype html><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><body style="margin:0">'+"".join(h for _,h in order)+'<script>document.querySelectorAll(".reveal,.ih-st").forEach(e=>e.classList.add("in"))</script>')
 else:
