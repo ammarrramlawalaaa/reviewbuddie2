@@ -10,7 +10,7 @@ If the connected store looks like Softies/Havels, stop.
 ## Confirmed by owner (1 Nov 2026)
 - Minimum order: **50 pieces**
 - Laser: **fiber** (metal is the strength; don't promise wood/glass/most plastics)
-- WhatsApp: **+91 91095 35267** → `https://wa.me/919109535267`
+- WhatsApp: **+91 83192 67960** → `https://wa.me/918319267960`
 - Products: start with mocks (below); owner will add more
 - Images: mock placeholders now; owner uploads real photos later
 

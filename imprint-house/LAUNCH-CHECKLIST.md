@@ -69,7 +69,7 @@ The site already sends these two events. Every WhatsApp button click and every q
 
 ## 9. Final test before ads go live (10 min)
 - [ ] Open the site on your phone: homepage, one product, FAQ, Get a quote
-- [ ] Tap a WhatsApp button and check the message opens to +91 91095 35267
+- [ ] Tap a WhatsApp button and check the message opens to +91 83192 67960
 - [ ] Submit the quote form, and check the email arrives at ammarramlawala.ar@gmail.com
 - [ ] Add a sample to cart and go to checkout. Check delivery shows ₹99 (and free on a bulk pack)
 
@@ -95,7 +95,7 @@ You can cancel an order at any time before you approve the final mockup (and, wh
 
 **Damaged, defective or our mistake: free replacement**
 If any piece arrives damaged, defective, or different from the mockup you approved (for example a spelling we got wrong, or a short quantity), we'll replace those pieces free of charge. If a replacement isn't possible, we'll refund the value of the affected pieces.
-To claim, contact us within **48 hours of delivery** on WhatsApp at +91 91095 35267 or by email at ammarramlawala.ar@gmail.com, with your order number and photos (an unboxing video helps for transit damage).
+To claim, contact us within **48 hours of delivery** on WhatsApp at +91 83192 67960 or by email at ammarramlawala.ar@gmail.com, with your order number and photos (an unboxing video helps for transit damage).
 
 **What isn't covered**
 - Change of mind after engraving
@@ -110,7 +110,7 @@ A paid single sample is engraved to order and is not refundable once engraved, u
 Approved refunds are processed within 7 working days to your original payment method. Your bank may take a few extra days to show it.
 
 **Questions**
-WhatsApp +91 91095 35267 or email ammarramlawala.ar@gmail.com. We usually reply the same day.
+WhatsApp +91 83192 67960 or email ammarramlawala.ar@gmail.com. We usually reply the same day.
 
 ### Shipping policy
 **Last updated: 3 November 2026**
@@ -141,11 +141,11 @@ All product prices already include GST.
 
 **Damaged in transit:** If a parcel arrives damaged, please photograph it and contact us within 48 hours. See our refund policy for how we fix it.
 
-**Contact:** WhatsApp +91 91095 35267 or email ammarramlawala.ar@gmail.com.
+**Contact:** WhatsApp +91 83192 67960 or email ammarramlawala.ar@gmail.com.
 
 ### Legal notice
 **The Imprint House**, laser-engraved corporate gifts.
 The Imprint House is a family-run business operating this online store.
-Contact: WhatsApp / phone +91 91095 35267 · Email ammarramlawala.ar@gmail.com
+Contact: WhatsApp / phone +91 83192 67960 · Email ammarramlawala.ar@gmail.com
 Registered business address and grievance contact details are listed on our Contact information page.
 All product photos, text and designs on this website belong to The Imprint House unless stated otherwise. Logos and brand names engraved in our product photos are shown as examples of our work.

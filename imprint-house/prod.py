@@ -1,7 +1,7 @@
 import json
 SHA="9712011025f5c338bfc0ea6073cb2b799cc55e81"
 U=lambda f:f"https://raw.githubusercontent.com/ammarrramlawalaaa/reviewbuddie2/{SHA}/imprint-house/product-photos/{f}"
-WA="https://wa.me/919109535267?text=Hi%2C%20I%27d%20like%20a%20quote"
+WA="https://wa.me/918319267960?text=Hi%2C%20I%27d%20like%20a%20quote"
 def table(pp,unit="piece"):
     rows=[(50,99,pp),(100,249,round(pp*0.9)),(250,499,round(pp*0.82)),(500,None,None)]
     h=f"<table><tr><th>Quantity</th><th>Price per {unit}</th></tr>"

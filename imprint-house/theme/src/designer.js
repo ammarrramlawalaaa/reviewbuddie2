@@ -886,7 +886,7 @@ export function init(cfg = {}) {
   function updateCTA() {
     const { P, C, parts } = summary(); const q = parseInt($('ihdQty').value, 10) || '';
     const msg = `Hi, I designed a ${P.label} (${C.name}) in your 3D designer.\n${parts.join('\n')}\nFont: ${FONTS[S.font].label}${q ? `\nQuantity: ${q}` : ''}\n${S.logo ? "I'll attach my logo file here too." : ''}`.trim();
-    $('ihdWhatsApp').href = (cfg.whatsapp || 'https://wa.me/919109535267') + '?text=' + encodeURIComponent(msg);
+    $('ihdWhatsApp').href = (cfg.whatsapp || 'https://wa.me/918319267960') + '?text=' + encodeURIComponent(msg);
   }
 
   document.querySelectorAll('#ihdProducts button').forEach(b => b.addEventListener('click', () => { S.product = b.dataset.p; S.colour = 0; S.side = 0; sel = 'text'; syncUI(); build3D(); drawEditor(); updateCTA(); }));
@@ -982,7 +982,7 @@ export function init(cfg = {}) {
       for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
       const file = new File([arr], `imprint-house-${S.product}-design.png`, { type: 'image/png' });
       if (navigator.canShare({ files: [file] })) {
-        navigator.share({ files: [file], text: msg + '\nWhatsApp: +91 91095 35267' }).catch(err => { if (!err || err.name !== 'AbortError') window.location.href = link; });
+        navigator.share({ files: [file], text: msg + '\nWhatsApp: +91 83192 67960' }).catch(err => { if (!err || err.name !== 'AbortError') window.location.href = link; });
         return;
       }
       window.location.href = link; return;

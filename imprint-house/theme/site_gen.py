@@ -1,7 +1,7 @@
 import json, re, sys, os
 SP="/tmp/claude-0/-home-user-reviewbuddie2/13fb6bb1-3703-5537-a370-eed2c2e2af05/scratchpad"
 OUT=sys.argv[1]; os.makedirs(OUT,exist_ok=True)
-WA="https://wa.me/919109535267?text=Hi%2C%20I%27d%20like%20a%20quote%20for%20engraved%20gifts%20with%20my%20logo"
+WA="https://wa.me/918319267960?text=Hi%2C%20I%27d%20like%20a%20quote%20for%20engraved%20gifts%20with%20my%20logo"
 def load(p): return json.loads(re.sub(r'^/\*.*?\*/','',open(p).read(),flags=re.S))
 v2=open(SP+"/v2/gen.py").read()
 BASE=re.search(r'CSS = """(.*?)"""',v2,re.S).group(1)  # fonts link + .ih css
@@ -124,7 +124,7 @@ pe=f"""{{% if template.name == 'product' %}}{MORE}<div class="ih"><section style
 <div class="ih-ctabox"><h3>Need 500+ pieces, names on each piece, or a different item?</h3><div style="display:flex;gap:.7rem;flex-wrap:wrap"><a class="btn b-brass" href="{WA}">Ask on WhatsApp →</a><a class="btn b-ghost" href="/pages/get-a-quote">Request a quote</a></div></div>
 </div></section></div>{{% endif %}}"""
 ft=f"""<div class="ih"><footer class="ih-foot"><div class="wrap"><div class="cols">
-<div><img src="{{{{ 'imprint-house-logo-light.png' | file_url }}}}" alt="The Imprint House — Engraved Corporate Gifts" width="180" height="122" loading="lazy" style="height:auto;width:180px;max-width:60%"><p class="tl">Branded gifts, engraved in-house and delivered ready to give — across India.</p><a class="btn b-brass" style="display:inline-flex;color:#16181a" href="{WA}">WhatsApp +91 91095 35267</a></div>
+<div><img src="{{{{ 'imprint-house-logo-light.png' | file_url }}}}" alt="The Imprint House — Engraved Corporate Gifts" width="180" height="122" loading="lazy" style="height:auto;width:180px;max-width:60%"><p class="tl">Branded gifts, engraved in-house and delivered ready to give — across India.</p><a class="btn b-brass" style="display:inline-flex;color:#16181a" href="{WA}">WhatsApp +91 83192 67960</a></div>
 <div><h5>Shop</h5><a href="/collections/ready-gift-packages">Gift packages</a><a href="/collections/keychains">Keychains</a><a href="/collections/pens">Pens</a><a href="/collections/bottles-drinkware">Bottles & mugs</a></div>
 <div><h5>Help</h5><a href="/pages/faq">FAQ</a><a href="/pages/shipping-delivery">Shipping &amp; delivery</a><a href="/pages/refunds-replacements">Refunds &amp; replacements</a><a href="/pages/contact">Contact us</a><a href="/pages/legal">Legal &amp; business info</a></div>
 <div><h5>Get started</h5><a href="/pages/3d-designer">3D designer</a><a href="/pages/get-a-quote">Request a quote</a><p style="color:#9a9a9a;font-size:.88rem;line-height:1.6;margin-top:.8rem">Bulk orders from 10 pieces.<br>All-inclusive prices, no hidden charges.</p></div>
