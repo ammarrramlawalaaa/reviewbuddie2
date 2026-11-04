@@ -30,11 +30,20 @@ const PRODUCTS = {
               { name: 'Red', swatch: '#a8161d', bg: '#a3121b', engrave: SILVER, body: 'red' }] },
   bottle: { label: 'Water bottle', sides: ['Body'], area: { w: 4.8, h: 1.3 }, wrap: 'v',
     colours: [{ name: 'Sage & rose gold', swatch: 'linear-gradient(90deg,#a7b79f 60%,#d39c78 60%)', bg: '#a7b79f', engrave: '#7f8683' }] },
+  leather: { label: 'Leather keychain', sides: ['Front'], area: { w: 3.7, h: 1.15 }, wrap: null,
+    colours: [{ name: 'Tan leather', swatch: '#b5652a', bg: '#b5652a', engrave: '#4a2510', finish: 'deboss' }] },
+  penlux: { label: 'Gold / rose-gold pen', sides: ['Barrel'], area: { w: 4.4, h: 0.52 }, wrap: 'v',
+    colours: [{ name: 'Gold trim', swatch: 'linear-gradient(90deg,#1d1d1f 55%,#d4ad5f 55%)', bg: '#1d1d1f', engrave: SILVER, body: 'soft', trim: 'gold' },
+              { name: 'Rose-gold trim', swatch: 'linear-gradient(90deg,#1d1d1f 55%,#d89a80 55%)', bg: '#1d1d1f', engrave: SILVER, body: 'soft', trim: 'rose' }] },
+  ropebottle: { label: 'Rope bottle', sides: ['Body'], area: { w: 4.6, h: 1.2 }, wrap: 'v',
+    colours: [{ name: 'Matte black', swatch: '#151515', bg: '#151515', engrave: SILVER }] },
+  whitebottle: { label: 'White bottle', sides: ['Body'], area: { w: 4.2, h: 1.15 }, wrap: 'v',
+    colours: [{ name: 'Matte white', swatch: '#efefed', bg: '#e8e8e6', engrave: '#8c9094' }] },
   mug: { label: 'Coffee mug', sides: ['Front'], area: { w: 3.1, h: 2.0 }, wrap: 'h',
     colours: [{ name: 'Navy', swatch: '#1f2c55', bg: '#1f2c55', engrave: SILVER, body: 'navy' },
               { name: 'Black', swatch: '#141414', bg: '#151515', engrave: SILVER, body: 'black' }] },
 };
-const ORDER = ['keychain', 'pen', 'roller', 'flask', 'bottle', 'mug'];
+const ORDER = ['keychain', 'leather', 'pen', 'penlux', 'roller', 'flask', 'bottle', 'ropebottle', 'whitebottle', 'mug'];
 
 /* ================= helpers ================= */
 const $ = (id) => document.getElementById(id);
@@ -358,10 +367,12 @@ const MAT = {
   steel: () => new MeshStandardMaterial({ color: 0xc9ccd0, metalness: 1, roughness: 0.28 }),
   enamel: () => new MeshPhysicalMaterial({ color: 0x050506, metalness: 0, roughness: 0.25, clearcoat: 1, clearcoatRoughness: 0.04, envMapIntensity: 0.6 }),
   coat: (c, r = 0.55, m = 0.25) => new MeshStandardMaterial({ color: c, metalness: m, roughness: r }),
+  gold: () => new MeshStandardMaterial({ color: 0xe2b864, metalness: 1, roughness: 0.17 }),
+  rose: () => new MeshStandardMaterial({ color: 0xe6a58e, metalness: 1, roughness: 0.17 }),
   anodised: (c) => new MeshPhysicalMaterial({ color: c, metalness: 0.75, roughness: 0.3, clearcoat: 0.6, clearcoatRoughness: 0.2 }),
 };
 const BODY = {
-  black: () => MAT.coat(0x141414, 0.5, 0.35), silver: () => MAT.coat(0xb8bbbf, 0.32, 0.95), blue: () => MAT.anodised(0x1a3aa8),
+  black: () => MAT.coat(0x141414, 0.5, 0.35), soft: () => MAT.coat(0x1d1d1f, 0.8, 0.12), silver: () => MAT.coat(0xb8bbbf, 0.32, 0.95), blue: () => MAT.anodised(0x1a3aa8),
   red: () => MAT.anodised(0xa3121b), navy: () => MAT.coat(0x1f2c55, 0.62, 0.2), flaskBlack: () => MAT.coat(0x121314, 0.5, 0.35), flaskBlue: () => MAT.coat(0x22409a, 0.55, 0.3), flaskRed: () => MAT.coat(0xa3161d, 0.55, 0.3), mugBlack: () => MAT.coat(0x151515, 0.62, 0.2),
 };
 function studioEnvironment(renderer) {
@@ -435,7 +446,7 @@ function buildKeychain(mats) {
   return { group: g, base: { x: -0.04, y: 0, z: 0 }, pitch: 0.05, fit: 1.08, sideYaw: [0, Math.PI] };
 }
 function buildPen(mats, colour) {
-  const g = new Group(); const body = BODY[colour.body || 'black'](), chrome = MAT.chrome();
+  const g = new Group(); const body = BODY[colour.body || 'black'](), chrome = colour.trim ? MAT[colour.trim]() : MAT.chrome();
   g.add(cyl(0.34, 0.035, 1.5, chrome, 0.75));
   const tip = new Mesh(new SphereGeometry(0.04, 12, 12), chrome); tip.position.y = 0.01; g.add(tip);
   g.add(cyl(0.40, 0.345, 3.2, body, 3.1)); g.add(cyl(0.418, 0.418, 0.1, chrome, 4.76)); g.add(cyl(0.405, 0.405, 0.26, body, 4.94));
@@ -501,7 +512,71 @@ function buildBottle(mats) {
   g.children.forEach(c => c.position.y -= 4.3);
   return { group: g, base: { x: 0, y: 0, z: 0 }, pitch: 0.1, fit: 1.22, sideYaw: [0] };
 }
-const BUILD = { keychain: buildKeychain, pen: buildPen, roller: buildRoller, flask: buildFlask, bottle: buildBottle, mug: buildMug };
+function stitchPath(g, shape, z, keep, mat) {
+  // dashed stitching along a path: short boxes on every other segment
+  const pts = shape.getSpacedPoints(90);
+  for (let i = 0; i < pts.length - 1; i += 2) {
+    const a = pts[i], b = pts[i + 1]; if (!keep(a) || !keep(b)) continue;
+    const len = Math.hypot(b.x - a.x, b.y - a.y), d = new Mesh(new BoxGeometry(0.035, len * 0.9, 0.02), mat);
+    d.position.set((a.x + b.x) / 2, (a.y + b.y) / 2, z); d.rotation.z = Math.atan2(b.y - a.y, b.x - a.x) - Math.PI / 2; g.add(d);
+  }
+}
+function buildLeather(mats) {
+  // tan leather strap with contrast stitching, a folded flap with a brass snap and a gold split ring
+  const g = new Group();
+  const leather = new MeshStandardMaterial({ color: 0xb5652a, roughness: 0.7, metalness: 0 });
+  const thread = new MeshStandardMaterial({ color: 0xeab84a, roughness: 0.6, metalness: 0 });
+  const gold = MAT.gold();
+  const W = 1.55, H = 5.6, T = 0.16, front = T / 2 + 0.03;
+  const strap = new Mesh(new ExtrudeGeometry(roundedRect(W, H, 0.32), { depth: T, bevelEnabled: true, bevelThickness: 0.03, bevelSize: 0.03, bevelSegments: 3, curveSegments: 24 }), leather);
+  strap.position.z = -T / 2; g.add(strap);
+  const flapH = 1.3, flapY = H / 2 - flapH / 2 + 0.02, flapZ = front + 0.005;
+  const flap = new Mesh(new ExtrudeGeometry(roundedRect(W, flapH, 0.32), { depth: 0.1, bevelEnabled: true, bevelThickness: 0.025, bevelSize: 0.02, bevelSegments: 3, curveSegments: 24 }), leather);
+  flap.position.set(0, flapY, flapZ); g.add(flap);
+  const snapBase = new Mesh(new CylinderGeometry(0.2, 0.2, 0.05, 32), gold); snapBase.rotation.x = Math.PI / 2; snapBase.position.set(0, flapY - 0.12, flapZ + 0.14); g.add(snapBase);
+  const snap = new Mesh(new SphereGeometry(0.16, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2), gold); snap.rotation.x = Math.PI / 2; snap.scale.y = 0.45; snap.position.set(0, flapY - 0.12, flapZ + 0.16); g.add(snap);
+  const flapBottom = flapY - flapH / 2;
+  stitchPath(g, roundedRect(W - 0.26, H - 0.26, 0.22), front + 0.012, p => p.y < flapBottom - 0.05, thread);
+  stitchPath(g, roundedRect(W - 0.26, flapH - 0.22, 0.22, false, 0, flapY), flapZ + 0.135, () => true, thread);
+  // engraving runs along the strap (reads bottom to top, like the photos)
+  const a = PRODUCTS.leather.area, ey = (-H / 2 + 0.3 + flapBottom - 0.12) / 2;
+  const plate = new Mesh(new PlaneGeometry(a.w, a.h), mats[0]); plate.rotation.z = Math.PI / 2; plate.position.set(0, ey, front + 0.004); g.add(plate);
+  const rOut = 1.15, rIn = 1.0, ringShape = new Shape(); ringShape.absarc(0, 0, rOut, 0, Math.PI * 2, false);
+  const hole = new Path(); hole.absarc(0, 0, rIn, 0, Math.PI * 2, true); ringShape.holes.push(hole);
+  const ringGeo = new ExtrudeGeometry(ringShape, { depth: 0.05, bevelEnabled: true, bevelThickness: 0.02, bevelSize: 0.02, bevelSegments: 3, curveSegments: 120 });
+  const ring = new Group(); const c1 = new Mesh(ringGeo, gold); c1.position.z = -0.07; ring.add(c1); const c2 = new Mesh(ringGeo, gold); c2.position.z = 0.01; ring.add(c2);
+  ring.position.set(0, H / 2 + rOut - 0.35, -0.02); ring.rotation.y = 0.12; g.add(ring);
+  return { group: g, base: { x: 0, y: 0, z: 0 }, pitch: 0.06, fit: 1.12, sideYaw: [0] };
+}
+function buildRopeBottle(mats) {
+  // matte black steel bottle, steel ring, black lid with a braided white rope loop
+  const g = new Group(); const body = MAT.coat(0x161617, 0.6, 0.3), steel = MAT.steel();
+  const rope = new MeshStandardMaterial({ color: 0xf1f1ee, roughness: 0.9, metalness: 0 }), sleeve = MAT.coat(0x777a7d, 0.6, 0.1);
+  const prof = [new Vector2(0, 0), new Vector2(1.06, 0), new Vector2(1.13, 0.07), new Vector2(1.16, 0.3), new Vector2(1.18, 4.6), new Vector2(1.14, 6.5), new Vector2(1.08, 6.95), new Vector2(0, 6.95)];
+  g.add(new Mesh(new LatheGeometry(prof, 96), body));
+  g.add(cyl(1.085, 1.085, 0.13, steel, 7.0));
+  g.add(cyl(1.07, 1.07, 1.0, body, 7.56));
+  const top = new Mesh(new CircleGeometry(0.62, 48), MAT.coat(0x0f0f10, 0.5, 0.3)); top.rotation.x = -Math.PI / 2; top.position.y = 8.065; g.add(top);
+  const loop = new CatmullRomCurve3([new Vector3(-0.55, 8.05, 0.1), new Vector3(-0.62, 8.55, 0.15), new Vector3(-0.2, 9.0, 0.2), new Vector3(0.45, 8.95, 0.2), new Vector3(0.8, 8.45, 0.15), new Vector3(0.95, 7.9, 0.4), new Vector3(1.0, 7.5, 0.55)]);
+  g.add(new Mesh(new TubeGeometry(loop, 80, 0.085, 12, false), rope));
+  const sl = new Mesh(new CylinderGeometry(0.13, 0.13, 0.42, 20), sleeve); sl.position.set(0.98, 7.62, 0.5); sl.rotation.z = 0.15; g.add(sl);
+  const a = PRODUCTS.ropebottle.area; g.add(wrap(1.175, a.w, a.h / 1.175, 3.4, mats[0]));
+  g.children.forEach(c => c.position.y -= 4.5);
+  return { group: g, base: { x: 0, y: 0, z: 0 }, pitch: 0.1, fit: 1.22, sideYaw: [0] };
+}
+function buildWhiteBottle(mats) {
+  // matte white steel bottle with rounded shoulders, white screw cap and a dark ring at the neck
+  const g = new Group(); const white = MAT.coat(0xeeeeec, 0.72, 0.05);
+  const prof = [new Vector2(0, 0), new Vector2(0.97, 0), new Vector2(1.03, 0.08), new Vector2(1.06, 0.3), new Vector2(1.06, 5.1), new Vector2(1.02, 5.65), new Vector2(0.88, 6.05), new Vector2(0.7, 6.32), new Vector2(0.64, 6.42), new Vector2(0, 6.42)];
+  g.add(new Mesh(new LatheGeometry(prof, 96), white));
+  g.add(cyl(0.645, 0.645, 0.11, MAT.coat(0x2a2b2c, 0.35, 0.7), 6.48));
+  g.add(cyl(0.67, 0.67, 0.86, white, 6.97));
+  const capTop = new Mesh(new CircleGeometry(0.67, 48), white); capTop.rotation.x = -Math.PI / 2; capTop.position.y = 7.4; g.add(capTop);
+  const a = PRODUCTS.whitebottle.area; g.add(wrap(1.062, a.w, a.h / 1.062, 2.9, mats[0]));
+  g.children.forEach(c => c.position.y -= 3.8);
+  return { group: g, base: { x: 0, y: 0, z: 0 }, pitch: 0.1, fit: 1.22, sideYaw: [0] };
+}
+const BUILD = { keychain: buildKeychain, leather: buildLeather, pen: buildPen, penlux: buildPen, roller: buildRoller, flask: buildFlask, bottle: buildBottle, ropebottle: buildRopeBottle, whitebottle: buildWhiteBottle, mug: buildMug };
 
 /* ================= engraving surface (texture per side) ================= */
 class Surface {
@@ -540,7 +615,7 @@ class Surface {
     this.toPhys(this.glowL, this.glowP);
     this.mat.color.set(colour.engrave); this.mat.emissiveIntensity = progress < 1 ? 2.2 : 0;
     // frosted engraving (on polished metal) is matte and bright; coating-removal engraving is metallic
-    if (colour.finish === 'frost') { this.mat.metalness = 0.05; this.mat.roughness = 0.82; } else { this.mat.metalness = 0.9; this.mat.roughness = 0.38; }
+    if (colour.finish === 'frost') { this.mat.metalness = 0.05; this.mat.roughness = 0.82; } else if (colour.finish === 'deboss') { this.mat.metalness = 0; this.mat.roughness = 0.95; } else { this.mat.metalness = 0.9; this.mat.roughness = 0.38; }
     this.tex.needsUpdate = true; this.gtex.needsUpdate = true;
   }
 }
