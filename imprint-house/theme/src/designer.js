@@ -32,6 +32,8 @@ const PRODUCTS = {
     colours: [{ name: 'Sage & rose gold', swatch: 'linear-gradient(90deg,#a7b79f 60%,#d39c78 60%)', bg: '#a7b79f', engrave: '#7f8683' }] },
   roundkey: { label: 'Round keychain', sides: ['Front', 'Back'], area: { w: 2.3, h: 2.3 }, wrap: null,
     colours: [{ name: 'Polished silver', swatch: 'linear-gradient(135deg,#f3f4f6,#9fa4a9 50%,#e8eaec)', bg: '#4d5156', engrave: '#ffffff', finish: 'frost' }] },
+  housekey: { label: 'House keychain', sides: ['Front', 'Back'], area: { w: 2.4, h: 1.9 }, wrap: null,
+    colours: [{ name: 'Polished silver', swatch: 'linear-gradient(135deg,#f3f4f6,#9fa4a9 50%,#e8eaec)', bg: '#4d5156', engrave: '#ffffff', finish: 'frost' }] },
   slimpen: { label: 'Slim stylus pen', sides: ['Barrel'], area: { w: 3.6, h: 0.4 }, wrap: 'v',
     colours: [{ name: 'Glossy black', swatch: 'linear-gradient(90deg,#0d0d0e 70%,#d9dbde 70%)', bg: '#0d0d0e', engrave: SILVER }] },
   leather: { label: 'Leather keychain', sides: ['Front'], area: { w: 3.7, h: 1.15 }, wrap: null,
@@ -47,7 +49,7 @@ const PRODUCTS = {
     colours: [{ name: 'Navy', swatch: '#1f2c55', bg: '#1f2c55', engrave: SILVER, body: 'navy' },
               { name: 'Black', swatch: '#141414', bg: '#151515', engrave: SILVER, body: 'black' }] },
 };
-const ORDER = ['keychain', 'roundkey', 'leather', 'pen', 'penlux', 'slimpen', 'roller', 'flask', 'bottle', 'ropebottle', 'whitebottle', 'mug'];
+const ORDER = ['keychain', 'roundkey', 'housekey', 'leather', 'pen', 'penlux', 'slimpen', 'roller', 'flask', 'bottle', 'ropebottle', 'whitebottle', 'mug'];
 
 /* ================= helpers ================= */
 const $ = (id) => document.getElementById(id);
@@ -595,20 +597,56 @@ function buildRoundKeychain(mats) {
   const a = PRODUCTS.roundkey.area, ez = (D - 0.08) / 2 + 0.002;
   const front = new Mesh(new PlaneGeometry(a.w, a.h), mats[0]); front.position.set(0, 0, ez); g.add(front);
   const back = new Mesh(new PlaneGeometry(a.w, a.h), mats[1]); back.position.set(0, 0, -ez); back.rotation.y = Math.PI; g.add(back);
-  // lug on top of the rim (turned side-on, so it threads through the link)
+  hangLinkAndRing(g, chrome, top);
+  return { group: g, base: { x: -0.04, y: 0, z: 0 }, pitch: 0.05, fit: 1.08, sideYaw: [0, Math.PI] };
+}
+function hangLinkAndRing(g, chrome, top) {
+  // lug on top of the tag (turned side-on, so it threads through the link), an oval link facing the camera, and a flat split ring
   const lug = new Mesh(new TorusGeometry(0.2, 0.075, 16, 48), chrome); lug.rotation.y = Math.PI / 2; lug.position.set(0, top + 0.16, 0); g.add(lug);
-  // oval link with a slot, facing the camera
   const lw = 0.52, lh = 1.25, ly = top + 0.16 + lh / 2 - 0.05;
   const link = roundedRect(lw, lh, lw / 2 - 0.001); link.holes.push(roundedRect(0.26, lh - 0.28, 0.13 - 0.001, true));
   const linkM = new Mesh(new ExtrudeGeometry(link, { depth: 0.1, bevelEnabled: true, bevelThickness: 0.045, bevelSize: 0.04, bevelSegments: 5, curveSegments: 32 }), chrome);
   linkM.position.set(0, ly, -0.05); g.add(linkM);
-  // flat split ring (two coils) through the top of the link
   const rOut = 1.5, rIn = 1.33, ringY = ly + lh / 2 - 0.16 + rOut;
   const ringShape = new Shape(); ringShape.absarc(0, 0, rOut, 0, Math.PI * 2, false);
   const hole = new Path(); hole.absarc(0, 0, rIn, 0, Math.PI * 2, true); ringShape.holes.push(hole);
   const ringGeo = new ExtrudeGeometry(ringShape, { depth: 0.045, bevelEnabled: true, bevelThickness: 0.022, bevelSize: 0.022, bevelSegments: 4, curveSegments: 140 });
   const ring = new Group(); const c1 = new Mesh(ringGeo, chrome); c1.position.z = -0.075; ring.add(c1); const c2 = new Mesh(ringGeo, chrome); c2.position.z = 0.012; ring.add(c2);
   ring.position.set(0, ringY, -0.03); ring.rotation.y = 0.1; g.add(ring);
+}
+function roundedPoly(pts, r, hole = false) {
+  // closed polygon with every corner rounded (radius capped by the neighbouring edge lengths)
+  const s = hole ? new Path() : new Shape(), n = pts.length;
+  for (let i = 0; i < n; i++) {
+    const p = pts[i], a = pts[(i + n - 1) % n], b = pts[(i + 1) % n];
+    const la = Math.hypot(a[0] - p[0], a[1] - p[1]), lb = Math.hypot(b[0] - p[0], b[1] - p[1]), rr = Math.min(r, la * 0.45, lb * 0.45);
+    const x1 = p[0] + (a[0] - p[0]) / la * rr, y1 = p[1] + (a[1] - p[1]) / la * rr, x2 = p[0] + (b[0] - p[0]) / lb * rr, y2 = p[1] + (b[1] - p[1]) / lb * rr;
+    if (i === 0) s.moveTo(x1, y1); else s.lineTo(x1, y1);
+    s.quadraticCurveTo(p[0], p[1], x2, y2);
+  }
+  s.closePath(); return s;
+}
+function housePts(wall, eave, step, bottom, apex) {
+  return [[-wall, bottom], [wall, bottom], [wall, step], [eave, step], [0, apex], [-eave, step], [-wall, step]];
+}
+function buildHouseKeychain(mats) {
+  // house-shaped mirror-polished tag (walls, pitched roof with small eaves) with a raised rim, lug, oval link and split ring
+  const g = new Group(); const chrome = MAT.polished();
+  const wall = 1.45, eave = 1.72, step = 0.2, bottom = -1.85, apex = 1.45, bez = 0.1, D = 0.26;
+  const m = (apex - step) / eave, k = bez * Math.sqrt(1 + m * m);
+  const iStep = step + bez, iApex = apex - k, iEave = (iApex - iStep) / m;
+  const inner = housePts(wall - bez, Math.max(iEave, wall - bez + 0.02), iStep, bottom + bez, iApex);
+  const outer = roundedPoly(housePts(wall, eave, step, bottom, apex), 0.16);
+  outer.holes.push(roundedPoly(inner, 0.08, true));
+  const rimM = new Mesh(new ExtrudeGeometry(outer, { depth: D - 0.1, bevelEnabled: true, bevelThickness: 0.06, bevelSize: 0.05, bevelSegments: 7, curveSegments: 16 }), chrome);
+  rimM.position.z = -(D - 0.1) / 2; g.add(rimM);
+  const mirror = new MeshStandardMaterial({ color: 0x9aa0a7, metalness: 1, roughness: 0.07, envMapIntensity: 0.85 });
+  const face = new Mesh(new ExtrudeGeometry(roundedPoly(inner, 0.08), { depth: D - 0.08, bevelEnabled: false, curveSegments: 16 }), mirror);
+  face.position.z = -(D - 0.08) / 2; g.add(face);
+  const a = PRODUCTS.housekey.area, ey = bottom + bez + 0.25 + a.h / 2, ez = (D - 0.08) / 2 + 0.002;
+  const front = new Mesh(new PlaneGeometry(a.w, a.h), mats[0]); front.position.set(0, ey, ez); g.add(front);
+  const back = new Mesh(new PlaneGeometry(a.w, a.h), mats[1]); back.position.set(0, ey, -ez); back.rotation.y = Math.PI; g.add(back);
+  hangLinkAndRing(g, chrome, apex - 0.02);
   return { group: g, base: { x: -0.04, y: 0, z: 0 }, pitch: 0.05, fit: 1.08, sideYaw: [0, Math.PI] };
 }
 function buildSlimPen(mats) {
@@ -632,7 +670,7 @@ function buildSlimPen(mats) {
   g.children.forEach(c => c.position.y -= 5.9);
   return { group: g, base: { x: 0, y: 0, z: -1.3 }, pitch: 0.1, fit: 1.15, sideYaw: [0] };
 }
-const BUILD = { keychain: buildKeychain, roundkey: buildRoundKeychain, slimpen: buildSlimPen, leather: buildLeather, pen: buildPen, penlux: buildPen, roller: buildRoller, flask: buildFlask, bottle: buildBottle, ropebottle: buildRopeBottle, whitebottle: buildWhiteBottle, mug: buildMug };
+const BUILD = { keychain: buildKeychain, roundkey: buildRoundKeychain, housekey: buildHouseKeychain, slimpen: buildSlimPen, leather: buildLeather, pen: buildPen, penlux: buildPen, roller: buildRoller, flask: buildFlask, bottle: buildBottle, ropebottle: buildRopeBottle, whitebottle: buildWhiteBottle, mug: buildMug };
 
 /* ================= engraving surface (texture per side) ================= */
 class Surface {
