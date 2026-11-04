@@ -126,6 +126,7 @@
     {% elsif ih_mode == 'unit' %}
       <span class="price{% if ih_main %} ih-main-price{% endif %}"><bdi>{{ ih_per }}</bdi> <small class="ih-unit">/ {{ ih_unit }}</small></span>
       <span class="ih-per">(MOQ {{ ih_moq }} {{ ih_abbr }}){% if ih_free > 0 %} · Free shipping on {{ ih_free }}+ {{ ih_abbr }}{% else %} · Free shipping on bulk orders{% endif %}</span>
+      <span class="ih-per">Inclusive of everything — engraving, packing &amp; taxes</span>
       {%- if ih_main -%}<span class="ih-moq" data-moq="{{ ih_moq }}" hidden></span><span class="ih-moq-msg" hidden>Quantity set to the minimum order of {{ ih_moq }}.</span>{%- endif -%}
     {% else %}
       <span class="price"><bdi>{{ ih_per }}</bdi> <small class="ih-unit">per {{ ih_unit }}</small></span>

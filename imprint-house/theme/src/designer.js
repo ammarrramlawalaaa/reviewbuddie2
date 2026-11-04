@@ -30,6 +30,10 @@ const PRODUCTS = {
               { name: 'Red', swatch: '#a8161d', bg: '#a3121b', engrave: SILVER, body: 'red' }] },
   bottle: { label: 'Water bottle', sides: ['Body'], area: { w: 4.8, h: 1.3 }, wrap: 'v',
     colours: [{ name: 'Sage & rose gold', swatch: 'linear-gradient(90deg,#a7b79f 60%,#d39c78 60%)', bg: '#a7b79f', engrave: '#7f8683' }] },
+  roundkey: { label: 'Round keychain', sides: ['Front', 'Back'], area: { w: 2.3, h: 2.3 }, wrap: null,
+    colours: [{ name: 'Polished silver', swatch: 'linear-gradient(135deg,#f3f4f6,#9fa4a9 50%,#e8eaec)', bg: '#4d5156', engrave: '#ffffff', finish: 'frost' }] },
+  slimpen: { label: 'Slim stylus pen', sides: ['Barrel'], area: { w: 3.6, h: 0.4 }, wrap: 'v',
+    colours: [{ name: 'Glossy black', swatch: 'linear-gradient(90deg,#0d0d0e 70%,#d9dbde 70%)', bg: '#0d0d0e', engrave: SILVER }] },
   leather: { label: 'Leather keychain', sides: ['Front'], area: { w: 3.7, h: 1.15 }, wrap: null,
     colours: [{ name: 'Tan leather', swatch: '#b5652a', bg: '#b5652a', engrave: '#4a2510', finish: 'deboss' }] },
   penlux: { label: 'Gold / rose-gold pen', sides: ['Barrel'], area: { w: 4.4, h: 0.52 }, wrap: 'v',
@@ -43,7 +47,7 @@ const PRODUCTS = {
     colours: [{ name: 'Navy', swatch: '#1f2c55', bg: '#1f2c55', engrave: SILVER, body: 'navy' },
               { name: 'Black', swatch: '#141414', bg: '#151515', engrave: SILVER, body: 'black' }] },
 };
-const ORDER = ['keychain', 'leather', 'pen', 'penlux', 'roller', 'flask', 'bottle', 'ropebottle', 'whitebottle', 'mug'];
+const ORDER = ['keychain', 'roundkey', 'leather', 'pen', 'penlux', 'slimpen', 'roller', 'flask', 'bottle', 'ropebottle', 'whitebottle', 'mug'];
 
 /* ================= helpers ================= */
 const $ = (id) => document.getElementById(id);
@@ -576,7 +580,59 @@ function buildWhiteBottle(mats) {
   g.children.forEach(c => c.position.y -= 3.8);
   return { group: g, base: { x: 0, y: 0, z: 0 }, pitch: 0.1, fit: 1.22, sideYaw: [0] };
 }
-const BUILD = { keychain: buildKeychain, leather: buildLeather, pen: buildPen, penlux: buildPen, roller: buildRoller, flask: buildFlask, bottle: buildBottle, ropebottle: buildRopeBottle, whitebottle: buildWhiteBottle, mug: buildMug };
+function buildRoundKeychain(mats) {
+  // round mirror-polished disc with a raised rounded rim, a small lug at the top, an oval link and a split ring
+  const g = new Group(); const chrome = MAT.polished();
+  const R = 1.75, rim = 0.15, D = 0.26, top = R;
+  const rs = new Shape(); rs.absarc(0, 0, R, 0, Math.PI * 2, false);
+  const rh = new Path(); rh.absarc(0, 0, R - rim, 0, Math.PI * 2, true); rs.holes.push(rh);
+  const rimM = new Mesh(new ExtrudeGeometry(rs, { depth: D - 0.1, bevelEnabled: true, bevelThickness: 0.06, bevelSize: 0.055, bevelSegments: 7, curveSegments: 120 }), chrome);
+  rimM.position.z = -(D - 0.1) / 2; g.add(rimM);
+  const mirror = new MeshStandardMaterial({ color: 0x9aa0a7, metalness: 1, roughness: 0.07, envMapIntensity: 0.85 });
+  const fc = new Shape(); fc.absarc(0, 0, R - rim + 0.01, 0, Math.PI * 2, false);
+  const face = new Mesh(new ExtrudeGeometry(fc, { depth: D - 0.08, bevelEnabled: false, curveSegments: 120 }), mirror);
+  face.position.z = -(D - 0.08) / 2; g.add(face);
+  const a = PRODUCTS.roundkey.area, ez = (D - 0.08) / 2 + 0.002;
+  const front = new Mesh(new PlaneGeometry(a.w, a.h), mats[0]); front.position.set(0, 0, ez); g.add(front);
+  const back = new Mesh(new PlaneGeometry(a.w, a.h), mats[1]); back.position.set(0, 0, -ez); back.rotation.y = Math.PI; g.add(back);
+  // lug on top of the rim (turned side-on, so it threads through the link)
+  const lug = new Mesh(new TorusGeometry(0.2, 0.075, 16, 48), chrome); lug.rotation.y = Math.PI / 2; lug.position.set(0, top + 0.16, 0); g.add(lug);
+  // oval link with a slot, facing the camera
+  const lw = 0.52, lh = 1.25, ly = top + 0.16 + lh / 2 - 0.05;
+  const link = roundedRect(lw, lh, lw / 2 - 0.001); link.holes.push(roundedRect(0.26, lh - 0.28, 0.13 - 0.001, true));
+  const linkM = new Mesh(new ExtrudeGeometry(link, { depth: 0.1, bevelEnabled: true, bevelThickness: 0.045, bevelSize: 0.04, bevelSegments: 5, curveSegments: 32 }), chrome);
+  linkM.position.set(0, ly, -0.05); g.add(linkM);
+  // flat split ring (two coils) through the top of the link
+  const rOut = 1.5, rIn = 1.33, ringY = ly + lh / 2 - 0.16 + rOut;
+  const ringShape = new Shape(); ringShape.absarc(0, 0, rOut, 0, Math.PI * 2, false);
+  const hole = new Path(); hole.absarc(0, 0, rIn, 0, Math.PI * 2, true); ringShape.holes.push(hole);
+  const ringGeo = new ExtrudeGeometry(ringShape, { depth: 0.045, bevelEnabled: true, bevelThickness: 0.022, bevelSize: 0.022, bevelSegments: 4, curveSegments: 140 });
+  const ring = new Group(); const c1 = new Mesh(ringGeo, chrome); c1.position.z = -0.075; ring.add(c1); const c2 = new Mesh(ringGeo, chrome); c2.position.z = 0.012; ring.add(c2);
+  ring.position.set(0, ringY, -0.03); ring.rotation.y = 0.1; g.add(ring);
+  return { group: g, base: { x: -0.04, y: 0, z: 0 }, pitch: 0.05, fit: 1.08, sideYaw: [0, Math.PI] };
+}
+function buildSlimPen(mats) {
+  // slim glossy-black ballpoint: chrome cone tip, chrome rings, long chrome clip and a black stylus dome on top
+  const g = new Group(); const body = MAT.enamel(), chrome = MAT.chrome(), rubber = MAT.coat(0x121213, 0.85, 0);
+  const r = 0.3;
+  g.add(cyl(0.27, 0.03, 1.25, chrome, 0.625));
+  const tip = new Mesh(new SphereGeometry(0.035, 12, 12), chrome); tip.position.y = 0.01; g.add(tip);
+  g.add(cyl(r + 0.012, r + 0.012, 0.09, chrome, 1.29));
+  g.add(cyl(r, r, 4.4, body, 3.54));
+  g.add(cyl(r + 0.014, r + 0.014, 0.1, chrome, 5.79));
+  g.add(cyl(r, r, 5.2, body, 8.44));
+  g.add(cyl(r + 0.014, r + 0.014, 0.1, chrome, 11.09));
+  g.add(cyl(r, r - 0.01, 0.42, body, 11.35));
+  g.add(cyl(r - 0.02, r - 0.02, 0.06, chrome, 11.59));
+  const dome = new Mesh(new SphereGeometry(r - 0.03, 40, 20, 0, Math.PI * 2, 0, Math.PI / 2), rubber); dome.scale.y = 0.7; dome.position.y = 11.62; g.add(dome);
+  const clip = new Mesh(new BoxGeometry(0.15, 3.5, 0.08), chrome); clip.position.set(-0.4, 9.25, 0); g.add(clip);
+  const clipTop = new Mesh(new BoxGeometry(0.15, 0.36, 0.26), chrome); clipTop.position.set(-0.3, 10.86, 0); g.add(clipTop);
+  const clipEnd = new Mesh(new SphereGeometry(0.085, 16, 12), chrome); clipEnd.position.set(-0.41, 7.5, 0); g.add(clipEnd);
+  const a = PRODUCTS.slimpen.area; g.add(wrap(r + 0.0015, a.w, a.h / (r + 0.0015), 3.5, mats[0]));
+  g.children.forEach(c => c.position.y -= 5.9);
+  return { group: g, base: { x: 0, y: 0, z: -1.3 }, pitch: 0.1, fit: 1.15, sideYaw: [0] };
+}
+const BUILD = { keychain: buildKeychain, roundkey: buildRoundKeychain, slimpen: buildSlimPen, leather: buildLeather, pen: buildPen, penlux: buildPen, roller: buildRoller, flask: buildFlask, bottle: buildBottle, ropebottle: buildRopeBottle, whitebottle: buildWhiteBottle, mug: buildMug };
 
 /* ================= engraving surface (texture per side) ================= */
 class Surface {
