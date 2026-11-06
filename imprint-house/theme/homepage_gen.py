@@ -1,3 +1,4 @@
+import os
 import json, sys, re
 PREVIEW = len(sys.argv)>1 and sys.argv[1]=="preview"
 WA="https://wa.me/918319267960?text=Hi%2C%20I%27d%20like%20a%20quote%20for%20engraved%20gifts%20with%20my%20logo"
@@ -248,7 +249,7 @@ REAL=[("pen-keychain-set-black-real.jpg","Black pen and keychain gift set, actua
       ("matte-roller-pen-gift-case-real.jpg","Matte roller pen in its gift case, actual product photo","Roller pen in its gift case"),
       ("matte-roller-pen-open-real.jpg","Roller pen with cap removed, actual product photo","Roller pen, cap off")]
 proof=('<div class="ih"><section class="ih-sec" style="background:#fff"><div class="wrap"><div class="ih-head"><div><span class="eb">Real photos, not renders</span>'
-       '<h2>What actually arrives.</h2></div><p>Phone photos of our actual products, not studio renders. Ask us on WhatsApp for photos and videos of recent orders.</p></div><div class="ih-proof">'
+       '<h2>What actually arrives.</h2></div><p>Real client orders and phone photos from our workshop, not studio renders. Ask us on WhatsApp for photos and videos of recent orders.</p></div><div class="ih-proof">'
        + ('' if PREVIEW else '{%- for w in shop.metaobjects.work_photo.values limit: 8 -%}{%- if w.image.value -%}<figure class="reveal">{{ w.image.value | image_url: width: 900 | image_tag: loading: \'lazy\', alt: w.caption.value }}<figcaption>{{ w.caption.value | escape }}</figcaption></figure>{%- endif -%}{%- endfor -%}')
        + "".join('<figure class="reveal"><img src="{{ \'%s\' | file_url }}" alt="%s" loading="lazy" width="946" height="1240"><figcaption>%s</figcaption></figure>' % r for r in REAL)
        + '</div><div style="margin-top:1.8rem"><a class="btn b-dark" href="' + WA + '">Ask for recent order photos &rarr;</a></div></div></section></div>')
@@ -267,9 +268,11 @@ testimonials=('{%- capture ih_tc -%}{%- assign ih_n = 0 -%}{%- for t in shop.met
               + TCARD + '{%- endif -%}{%- endfor -%}{%- endcapture -%}{%- if ih_tc != blank -%}<div class="ih"><section class="ih-sec" style="background:var(--paper)"><div class="wrap">'
               '<div class="ih-head"><div><span class="eb">From our clients</span><h2>In their words.</h2></div><p>Real clients, real orders, shared with their permission.</p></div>'
               '<div class="ih-tms">{{ ih_tc }}</div></div></section></div>{%- endif -%}')
+# 22-second silent workshop video cut from our Instagram reels (real client orders); file lives in Shopify Files
+workshop=open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'workshop_section.html'),encoding='utf-8').read().replace('__WA__',WA)
 order=[("hero",hero),("packages",packages),("demo",demo),("products",products),("proof",proof),("cta",cta)]
 if not PREVIEW:
-    order=[("hero",hero),("trusted",trusted),("packages",packages),("demo",demo),("products",products),("proof",proof),("testimonials",testimonials),("cta",cta)]
+    order=[("hero",hero),("trusted",trusted),("packages",packages),("demo",demo),("products",products),("workshop",workshop),("proof",proof),("testimonials",testimonials),("cta",cta)]
 if PREVIEW:
     open(sys.argv[2],"w").write('<!doctype html><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><body style="margin:0">'+"".join(h for _,h in order)+'<script>document.querySelectorAll(".reveal,.ih-st").forEach(e=>e.classList.add("in"))</script>')
 else:

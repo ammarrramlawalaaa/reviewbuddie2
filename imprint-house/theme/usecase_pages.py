@@ -67,9 +67,17 @@ PAGES = [
        "<h2>What partners get</h2><ul><li>Trade pricing on request, for repeat and larger orders.</li><li>Free digital mockups within 24 hours, ready to share with your client.</li><li>Low minimums: from 10 pieces on bottles and mugs, 25 on pens, 50 on keychains.</li><li>Names on each piece, approved by you before engraving.</li><li>Delivery across India, to you or to your client.</li></ul>"
        "<h2>Get the trade price list</h2><p>Message us on WhatsApp with your company name and the products you sell most, and we'll send our trade price list and sample options.</p>"),
 ]
+PHOTOS = {'dealership-gifts': ('https://cdn.shopify.com/s/files/1/0676/2509/1133/files/workshop-name-keychain.jpg', 'Keychain engraved with initials and a surname', "a keychain engraved with a customer's initials and name."), 'real-estate-handover-gifts': ('https://cdn.shopify.com/s/files/1/0676/2509/1133/files/workshop-house-keychains.jpg', "House-shaped keychains engraved with a client's brand", 'house-shaped keychains engraved for a client.'), 'employee-welcome-kits': ('https://cdn.shopify.com/s/files/1/0676/2509/1133/files/workshop-flask-gift-set-blue.jpg', 'Blue flask, pen and keychain gift set in its box', 'a flask, pen and keychain gift set, boxed and ready to hand over.'), 'doctor-clinic-gifts': ('https://cdn.shopify.com/s/files/1/0676/2509/1133/files/workshop-doctor-name-pen.jpg', "Pen engraved with a doctor's name", "a pen engraved with a doctor's name."), 'dealer-meet-gifts': ('https://cdn.shopify.com/s/files/1/0676/2509/1133/files/workshop-keychains-100-order.jpg', "A 100-piece order of keychains engraved with a client's logo", "a 100-piece keychain order, engraved with the client's logo."), 'corporate-gifts-under-500': ('https://cdn.shopify.com/s/files/1/0676/2509/1133/files/workshop-bulk-pens.jpg', 'A bulk order of engraved metal pens', 'a bulk order of engraved pens.'), 'trade': ('https://cdn.shopify.com/s/files/1/0676/2509/1133/files/workshop-bottles-lineup.jpg', "Black steel bottles engraved with a client's logo", "steel bottles engraved with a client's logo, ready to dispatch.")}
+def figure(handle):
+    # one real order photo from the workshop (frames from our Instagram reels), placed after the opening section
+    src, alt, cap = PHOTOS[handle]
+    return (f'<figure style="margin:1.6rem 0;max-width:420px"><img src="{src}?width=840" alt="{alt}" width="420" height="560" loading="lazy" '
+            f'style="width:100%;height:auto;border-radius:16px;display:block"><figcaption style="font-size:.85rem;color:#6b6b6b;margin-top:.5rem">From our workshop: {cap}</figcaption></figure>')
 def payload(pg):
     for k in ("seo_t","seo_d"): assert len(pg[k]) <= (70 if k=="seo_t" else 160), (pg["handle"], k, len(pg[k]))
-    return {"title": pg["title"], "handle": pg["handle"], "body": pg["body"], "isPublished": True, "templateSuffix": "usecase",
+    i = pg["body"].index("</p>") + 4
+    body = pg["body"][:i] + figure(pg["handle"]) + pg["body"][i:]
+    return {"title": pg["title"], "handle": pg["handle"], "body": body, "isPublished": True, "templateSuffix": "usecase",
             "metafields": [{"namespace":"custom","key":"subtitle","type":"single_line_text_field","value":pg["sub"]},
                            {"namespace":"custom","key":"products","type":"list.product_reference","value":json.dumps([f"gid://shopify/Product/{P[x]}" for x in pg["products"]])},
                            {"namespace":"global","key":"title_tag","type":"single_line_text_field","value":pg["seo_t"]},

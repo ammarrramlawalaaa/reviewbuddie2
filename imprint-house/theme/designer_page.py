@@ -1,3 +1,4 @@
+import os
 import json, re, sys
 PREVIEW = len(sys.argv) > 1 and sys.argv[1] == "preview"
 OUT = sys.argv[2]
@@ -117,6 +118,7 @@ if PREVIEW:
     open(OUT, "w").write('<!doctype html><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><body style="margin:0">' + base + DESIGNER + '</body>')
 else:
     sec = lambda h: {"type": "custom-liquid", "settings": {"custom_liquid": h, "background_color": "", "section_width": "full-width", "padding-block-start": 0, "padding-block-end": 0}}
-    tpl = {"sections": {"ihd_main": sec(DESIGNER), "ihd_gallery": sec(GAL_LIQ)}, "order": ["ihd_main", "ihd_gallery"]}
+    WORKSHOP = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "workshop_section.html"), encoding="utf-8").read().replace("__WA__", "https://wa.me/918319267960?text=Hi%2C%20I%27d%20like%20a%20free%20mockup%20with%20my%20logo")
+    tpl = {"sections": {"ihd_main": sec(DESIGNER), "ihd_video": sec(WORKSHOP), "ihd_gallery": sec(GAL_LIQ)}, "order": ["ihd_main", "ihd_video", "ihd_gallery"]}
     open(OUT, "w").write(json.dumps(tpl, ensure_ascii=False, separators=(',', ':')))
     print("live template", len(DESIGNER), len(GAL_LIQ))

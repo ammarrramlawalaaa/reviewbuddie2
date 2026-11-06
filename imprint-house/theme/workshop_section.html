@@ -1,0 +1,17 @@
+<style>
+.ih-made .g{display:grid;gap:2.2rem;align-items:center}
+@media(min-width:900px){.ih-made .g{grid-template-columns:1.05fr .95fr}}
+.ih-made h2{margin:.4rem 0 1rem}
+.ih-made ul{padding-left:1.1rem;margin:1rem 0 0;color:#3a3a3a;line-height:1.7}
+.ih-vid{position:relative;max-width:440px;margin:0 auto;width:100%}
+.ih-vid video{width:100%;height:auto;aspect-ratio:4/5;object-fit:cover;border-radius:24px;display:block;background:#111;box-shadow:0 30px 60px -30px rgba(0,0,0,.45)}
+.ih-vid .lbl{position:absolute;left:14px;top:14px;background:rgba(22,24,26,.72);color:#fff;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;padding:.35rem .7rem;border-radius:99px}
+</style>
+<div class="ih"><section class="ih-sec ih-made" style="background:var(--paper,#f7f5f1)"><div class="wrap g">
+<div><span class="eb">Made in our own workshop</span><h2>Watch it being engraved.</h2>
+<p style="color:var(--muted,#6b6b6b)">Every order is laser-engraved in-house, checked by hand and packed by our own team. This is real client work, straight from our workshop.</p>
+<ul><li>Laser-engraved, so it won't fade, peel or rub off</li><li>Logos, names and numbers on each piece, from 10 pieces</li><li>A free digital mockup before anything is engraved</li></ul>
+<div style="display:flex;gap:.8rem;flex-wrap:wrap;margin-top:1.6rem"><a class="btn b-dark" href="__WA__">Get a free mockup &rarr;</a><a class="btn b-line" href="https://www.instagram.com/theimprinthouse/" target="_blank" rel="noopener">More on Instagram &rarr;</a></div></div>
+<div class="ih-vid"><video src="{{ 'imprint-workshop.mp4' | file_url }}" poster="{{ 'imprint-workshop-poster.jpg' | file_url }}" muted loop playsinline preload="none" aria-label="Laser engraving bottles, keychains, pens and gift sets in our workshop"></video><span class="lbl">Real orders</span></div>
+</div></section></div>
+<script>(function(){document.querySelectorAll('.ih-vid video').forEach(function(v){function p(){var r=v.play&&v.play();if(r&&r.catch)r.catch(function(){})}if('IntersectionObserver' in window){new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){p()}else{v.pause()}})},{threshold:.3}).observe(v)}else{p()}})})();</script>
