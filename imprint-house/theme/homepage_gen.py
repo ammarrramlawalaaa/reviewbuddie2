@@ -249,9 +249,27 @@ REAL=[("pen-keychain-set-black-real.jpg","Black pen and keychain gift set, actua
       ("matte-roller-pen-open-real.jpg","Roller pen with cap removed, actual product photo","Roller pen, cap off")]
 proof=('<div class="ih"><section class="ih-sec" style="background:#fff"><div class="wrap"><div class="ih-head"><div><span class="eb">Real photos, not renders</span>'
        '<h2>What actually arrives.</h2></div><p>Phone photos of our actual products, not studio renders. Ask us on WhatsApp for photos and videos of recent orders.</p></div><div class="ih-proof">'
+       + ('' if PREVIEW else '{%- for w in shop.metaobjects.work_photo.values limit: 8 -%}{%- if w.image.value -%}<figure class="reveal">{{ w.image.value | image_url: width: 900 | image_tag: loading: \'lazy\', alt: w.caption.value }}<figcaption>{{ w.caption.value | escape }}</figcaption></figure>{%- endif -%}{%- endfor -%}')
        + "".join('<figure class="reveal"><img src="{{ \'%s\' | file_url }}" alt="%s" loading="lazy" width="946" height="1240"><figcaption>%s</figcaption></figure>' % r for r in REAL)
        + '</div><div style="margin-top:1.8rem"><a class="btn b-dark" href="' + WA + '">Ask for recent order photos &rarr;</a></div></div></section></div>')
+# Proof from real clients. Both sections stay hidden until the owner adds entries in
+# Shopify admin > Content > Metaobjects (Client logo, Testimonial, Work photo, Proof figure).
+trusted=('{%- assign ih_logos = shop.metaobjects.client_logo.values -%}{%- assign ih_fig = shop.metaobjects.proof_figure.values.first.text.value -%}'
+         '{%- if ih_logos.size > 0 or ih_fig != blank -%}<div class="ih"><section class="ih-trusted"><div class="wrap">'
+         '{%- if ih_fig != blank -%}<p class="fig">{{ ih_fig | escape }}</p>{%- endif -%}'
+         '{%- if ih_logos.size > 0 -%}<span class="eb">Trusted by</span><div class="logos">{%- for l in ih_logos limit: 12 -%}{%- if l.logo.value -%}'
+         '{{ l.logo.value | image_url: height: 96 | image_tag: loading: \'lazy\', alt: l.company.value, height: 44 }}{%- endif -%}{%- endfor -%}</div>{%- endif -%}'
+         '</div></section></div>{%- endif -%}')
+TCARD=('<figure class="ih-tm reveal">{%- if t.photo.value -%}{{ t.photo.value | image_url: width: 800 | image_tag: loading: \'lazy\', alt: t.company.value }}{%- endif -%}'
+       '<blockquote>&ldquo;{{ t.quote.value | escape | newline_to_br }}&rdquo;</blockquote><figcaption><b>{{ t.name.value | escape }}</b>'
+       '{%- if t.role.value != blank -%}, {{ t.role.value | escape }}{%- endif -%}<span>{{ t.company.value | escape }}</span></figcaption></figure>')
+testimonials=('{%- capture ih_tc -%}{%- assign ih_n = 0 -%}{%- for t in shop.metaobjects.testimonial.values -%}{%- if t.on_homepage.value == true and ih_n < 3 -%}{%- assign ih_n = ih_n | plus: 1 -%}'
+              + TCARD + '{%- endif -%}{%- endfor -%}{%- endcapture -%}{%- if ih_tc != blank -%}<div class="ih"><section class="ih-sec" style="background:var(--paper)"><div class="wrap">'
+              '<div class="ih-head"><div><span class="eb">From our clients</span><h2>In their words.</h2></div><p>Real clients, real orders, shared with their permission.</p></div>'
+              '<div class="ih-tms">{{ ih_tc }}</div></div></section></div>{%- endif -%}')
 order=[("hero",hero),("packages",packages),("demo",demo),("products",products),("proof",proof),("cta",cta)]
+if not PREVIEW:
+    order=[("hero",hero),("trusted",trusted),("packages",packages),("demo",demo),("products",products),("proof",proof),("testimonials",testimonials),("cta",cta)]
 if PREVIEW:
     open(sys.argv[2],"w").write('<!doctype html><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><body style="margin:0">'+"".join(h for _,h in order)+'<script>document.querySelectorAll(".reveal,.ih-st").forEach(e=>e.classList.add("in"))</script>')
 else:

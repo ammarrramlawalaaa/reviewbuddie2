@@ -28,7 +28,7 @@
   assign ih_title = page_title
   if request.page_type == 'index'
     if page_title == blank or page_title == shop.name
-      assign ih_title = 'The Imprint House | Engraved Corporate Gifts with Your Logo'
+      assign ih_title = 'Engraved Corporate Gifts with Logo in India | The Imprint House'
       assign og_title = ih_title
     endif
     if og_description == blank or og_description == shop.name
@@ -137,3 +137,34 @@
     content="{{ og_description | escape }}"
   >
 {% endif %}
+
+{%- if request.page_type == 'index' -%}
+  {%- comment -%} Imprint House: tell search engines who the business is (name, site, logo, WhatsApp/phone) {%- endcomment -%}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": {{ shop.name | json }},
+      "url": {{ request.origin | json }},
+      {%- if settings.logo != blank %}
+      "logo": {{ settings.logo | image_url: width: 600 | prepend: 'https:' | json }},
+      {%- endif %}
+      "description": "Laser-engraved corporate gifts with your logo: keychains, pens, bottles, mugs and gift sets, delivered across India.",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+91-83192-67960",
+        "contactType": "sales",
+        "areaServed": "IN"
+      },
+      "sameAs": ["https://www.instagram.com/theimprinthouse/"]
+    }
+  </script>
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": {{ shop.name | json }},
+      "url": {{ request.origin | json }}
+    }
+  </script>
+{%- endif -%}

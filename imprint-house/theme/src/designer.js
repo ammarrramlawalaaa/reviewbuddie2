@@ -886,8 +886,11 @@ export function init(cfg = {}) {
   function updateCTA() {
     const { P, C, parts } = summary(); const q = parseInt($('ihdQty').value, 10) || '';
     const msg = `Hi, I designed a ${P.label} (${C.name}) in your 3D designer.\n${parts.join('\n')}\nFont: ${FONTS[S.font].label}${q ? `\nQuantity: ${q}` : ''}\n${S.logo ? "I'll attach my logo file here too." : ''}`.trim();
-    $('ihdWhatsApp').href = (cfg.whatsapp || 'https://wa.me/918319267960') + '?text=' + encodeURIComponent(msg);
+    const href = (cfg.whatsapp || 'https://wa.me/918319267960') + '?text=' + encodeURIComponent(msg);
+    // the site script adds the visitor's source code (G = Google Ads, M = Meta, ...) so chats can be traced to a channel
+    $('ihdWhatsApp').href = typeof window.IH_TAG_WA === 'function' ? window.IH_TAG_WA(href) : href;
   }
+  const pub = (n, d) => { try { if (window.Shopify && Shopify.analytics && Shopify.analytics.publish) Shopify.analytics.publish(n, d); } catch (x) { /* analytics is optional */ } };
 
   document.querySelectorAll('#ihdProducts button').forEach(b => b.addEventListener('click', () => { S.product = b.dataset.p; S.colour = 0; S.side = 0; sel = 'text'; syncUI(); build3D(); drawEditor(); updateCTA(); }));
   document.querySelectorAll('#ihdFonts button').forEach(b => b.addEventListener('click', () => {
@@ -967,6 +970,7 @@ export function init(cfg = {}) {
     return out;
   }
   function downloadImage(out) {
+    pub('designer_download', { product: S.product });
     const a = document.createElement('a'); a.download = `imprint-house-${S.product}-design.png`; a.href = out.toDataURL('image/png'); document.body.appendChild(a); a.click(); a.remove();
   }
   $('ihdDownload').addEventListener('click', () => downloadImage(composeImage()));
@@ -982,6 +986,7 @@ export function init(cfg = {}) {
       for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
       const file = new File([arr], `imprint-house-${S.product}-design.png`, { type: 'image/png' });
       if (navigator.canShare({ files: [file] })) {
+        pub('designer_download', { product: S.product, shared: true });
         navigator.share({ files: [file], text: msg + '\nWhatsApp: +91 83192 67960' }).catch(err => { if (!err || err.name !== 'AbortError') window.location.href = link; });
         return;
       }
@@ -993,6 +998,8 @@ export function init(cfg = {}) {
 
   // fonts may arrive late: redraw when they do
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => changed(false));
+  // product pages link here with ?p=<product key> so the visitor lands on that product
+  try { const q = new URLSearchParams(window.location.search).get('p'); if (q && PRODUCTS[q]) S.product = q; } catch (x) { /* ignore bad URLs */ }
   syncUI(); build3D(); drawEditor(); updateCTA();
   return { state: S, PRODUCTS };
 }

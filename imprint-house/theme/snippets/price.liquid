@@ -191,7 +191,19 @@
       <span class="ih-per">One engraved piece to check before your bulk order</span>
     {%- endif -%}
     {%- if ih_main -%}
-      <span class="ih-mock"><span>Free digital mockup first &mdash; nothing is engraved until you approve your design.</span><a href="https://wa.me/918319267960?text={{ 'Hi, I would like a free mockup for: ' | append: product_resource.title | url_encode }}" target="_blank" rel="noopener">Get my mockup on WhatsApp &rarr;</a></span>
+      {%- liquid
+        # product handle -> 3D designer key, so buyers can see their own logo on this exact product
+        assign ih_3d = ''
+        assign ih_pairs = 'classic-metal-keychain:keychain,round-metal-keychain:roundkey,house-metal-keychain:housekey,engraved-leather-keychain:leather,metal-ball-pen:pen,soft-touch-pen-gold-rose-gold:penlux,slim-stylus-pen:slimpen,matte-roller-pen-gift-case:roller,insulated-steel-flask-logo:flask,stainless-steel-bottle-750-ml:bottle,black-rope-handle-bottle:ropebottle,white-steel-bottle:whitebottle,steel-coffee-mug-logo:mug,essential-gift-kit-under-300:keychain,executive-gift-kit-under-600:flask' | split: ','
+        for ih_pair in ih_pairs
+          assign ih_kv = ih_pair | split: ':'
+          if ih_kv[0] == product_resource.handle
+            assign ih_3d = ih_kv[1]
+            break
+          endif
+        endfor
+      -%}
+      <span class="ih-mock"><span>See your own logo on it before you order. Free digital mockup first &mdash; nothing is engraved until you approve.</span>{%- if ih_3d != '' -%}<a class="ih-3d" href="/pages/3d-designer?p={{ ih_3d }}">See your logo in 3D &rarr;</a>{%- endif -%}<a href="https://wa.me/918319267960?text={{ 'Hi, I would like a free mockup for: ' | append: product_resource.title | url_encode | replace: '+', '%20' }}" target="_blank" rel="noopener">Get my mockup on WhatsApp &rarr;</a></span>
     {%- endif -%}
   {%- endunless -%}
 </div>
