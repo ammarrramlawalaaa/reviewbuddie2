@@ -57,7 +57,7 @@ Built into the new theme:
 
 **Tag your own links so they get a code:**
 - IndiaMART profile: `https://theimprinthouse.in/?utm_source=indiamart`
-- Instagram bio: `https://theimprinthouse.in/?utm_source=instagram`
+- Instagram bio: `https://theimprinthouse.in/?utm_source=bio` (shows as "(BIO)", so free Instagram visitors stay separate from Meta ads, which show as "(M)")
 - Google Business Profile website link: `https://theimprinthouse.in/?utm_source=gbp` (not "google", which would be counted as Google Ads)
 - LinkedIn: `https://theimprinthouse.in/?utm_source=linkedin`
 
