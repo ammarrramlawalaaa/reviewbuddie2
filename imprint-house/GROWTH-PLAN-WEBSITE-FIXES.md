@@ -31,6 +31,7 @@ What was fixed on the website, what is ready and waiting for your content, and w
 - **Homepage title for Google:** "Engraved Corporate Gifts with Logo in India | The Imprint House".
 - **Business details for Google** (Organization data): name, logo, WhatsApp number and Instagram.
 - **Fixed:** "More engraved gifts" cards said "/ piece" for gift sets. They now say "/ set".
+- **Workshop video** (22 seconds, silent, cut from your Instagram reels) on the homepage and the 3D designer page, plus one real-order photo on each landing page.
 
 ## 3. Tracking: which channel brought each WhatsApp chat
 
@@ -116,7 +117,7 @@ analytics.subscribe('designer_download', (event) => {
 
 1. **Publish the new theme** (top of this page).
 2. **Proof content.** Ask existing clients (dealerships first) for logo permission, a 1–3 line testimonial and order photos. Use the message template in the plan's Appendix A, then add the entries under Content → Metaobjects.
-3. **Instagram photos.** Instagram blocks automated downloads, so they couldn't be pulled in automatically. Save your best 6–8 real-work photos from @theimprinthouse and add them as **Work photos**, or send them in chat to be added for you.
+3. **Instagram photos: done.** 8 real-order photos are added as Work photos, and a 22-second silent workshop video is on the homepage and the 3D designer page. Frames showing other phone numbers, the city or the "Bombay Studio" plate were left out or blurred. To add more later: Content → Metaobjects → Work photo.
 4. **Product photos with a client logo.** The first image of each product still shows "THE IMPRINT HOUSE". Send photos of real client orders (with permission), or pieces engraved with a dummy brand, and they'll be swapped in.
 5. **Google Search Console.** Verify theimprinthouse.in and submit `https://theimprinthouse.in/sitemap.xml`. The new landing pages are in the sitemap automatically.
 6. **Google Business Profile.** Create or claim it, hide the address if clients don't visit, set service areas, add the website link with `?utm_source=gbp` and the number +91 83192 67960. Ask every client for a review, with no incentives.
